@@ -1,13 +1,13 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
-const RegisterUserComponent = () => {
+const RegisterAdminComponent = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
-    const [phone, setPhone] = useState('');
-    const [address, setAddress] = useState('');
     const [password, setPassword] = useState('');
+    const [secretKey, setSecretKey] = useState('');
+
 
     // User interaction
     const [error, setError] = useState('');
@@ -18,15 +18,15 @@ const RegisterUserComponent = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
-        setLoading('Registering user account');
+        setLoading('Registering admin account');
         try {
-            const data = { name, email, phone, address, password, role: 'client' };
-            const res = await axios.post("https://emis-demm.onrender.com/api/client", data);
+            const data = { name, email, password, secretKey, role: 'admin' };
+            const res = await axios.post("https://emis-demm.onrender.com/api/user/register", data);
             if (res.data.newUser) {
                 setLoading('');
                 setSuccess(res.data.message);
                 console.log(res.data);
-                alert('Account created successfully. You will be redirected to login page');
+                alert('Admin account created successfully. You will be redirected to login page');
                 navigate('/login');
             } else {
                 setLoading('');
@@ -43,7 +43,7 @@ const RegisterUserComponent = () => {
         <div className='container mt-5' style={{ maxWidth: '500px' }}>
             <form onSubmit={handleSubmit} className='card shadow bg-light p-4 rounded'>
                 <h1 className='text-center text-success'>EMIS</h1>
-                <h2 className='text-center mb-4 text-success'>Register</h2>
+                <h2 className='text-center mb-4 text-success'>Register Admin</h2>
 
                 {/* Alerts */}
                 {error && <div className="alert alert-danger" role="alert">{error}</div>}
@@ -68,22 +68,6 @@ const RegisterUserComponent = () => {
                     required
                 />
                 <input
-                    type="text"
-                    className='form-control mb-3'
-                    placeholder='Enter your phone number'
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    required
-                />
-                <input
-                    type="text"
-                    className='form-control mb-3'
-                    placeholder='Enter your address'
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    required
-                />
-                <input
                     type="password"
                     className='form-control mb-3'
                     placeholder='Enter your password'
@@ -91,8 +75,14 @@ const RegisterUserComponent = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                 />
-                
-
+                <input
+                    type="password"
+                    className='form-control mb-3'
+                    placeholder='Enter your secret key'
+                    value={secretKey}
+                    onChange={(e) => setSecretKey(e.target.value)}
+                    required
+                />
                 <div className="d-grid mb-3">
                     <button type="submit" className='btn btn-success'>Register</button>
                 </div>
@@ -106,4 +96,4 @@ const RegisterUserComponent = () => {
     );
 };
 
-export default RegisterUserComponent;
+export default RegisterAdminComponent;

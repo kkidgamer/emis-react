@@ -7,6 +7,8 @@ import HomeComponents from './components/HomeComponents';
 import LoginComponent from './components/LoginComponent';
 import RegisterUserComponent from './components/RegisterUserComponent';
 import NotFound from './components/NotFoundComponent';
+import RegisterAdminComponent from './components/RegisterAdminComponent';
+import RegisterWorkerComponent from './components/RegisterWorkerComponent';
 
 
 function App() {
@@ -15,7 +17,11 @@ function App() {
       <Routes>
         <Route path="/" element={<HomeComponents/>} />
         <Route path="/login" element={<LoginComponent/>} />
-        <Route path="/register" element={<RegisterUserComponent/>} />
+        <Route path="/register/user" element={<RegisterUserComponent/>} />
+        <Route path="/register/admin" element={<RegisterAdminComponent/>} />
+        <Route path="/register/worker" element={<RegisterWorkerComponent/>} />
+        
+
         <Route path="*" element={<NotFound/>} />
 
         </Routes>
