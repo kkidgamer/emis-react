@@ -27,7 +27,7 @@ const RegisterAdminComponent = () => {
                 setSuccess(res.data.message);
                 console.log(res.data);
                 alert('Admin account created successfully. You will be redirected to login page');
-                navigate('/login');
+                navigate('/login/admin');
             } else {
                 setLoading('');
                 setError(res.data.message);
@@ -88,7 +88,7 @@ const RegisterAdminComponent = () => {
                 </div>
                 <div className="text-center">
                     <p>Already have an account? {' '}
-                        <Link to={'/login'} className='text-decoration-none'>Login</Link>
+                        <Link to={'/login/admin'} className='text-decoration-none'>Login</Link>
                     </p>
                 </div>
             </form>

@@ -1,0 +1,110 @@
+.homepage {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+}
+ 
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #004d99;
+  padding: 1rem 5%;
+  color: white;
+}
+ 
+.nav-links a {
+  margin-right: 1rem;
+  color: white;
+  text-decoration: none;
+}
+ 
+.hero {
+  position: relative;
+  height: 400px;
+  overflow: hidden;
+}
+ 
+.hero-image-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+ 
+.hero-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+ 
+.hero-text {
+  position: absolute;
+  top: 20%;
+  left: 10%;
+  color: white;
+  max-width: 600px;
+  z-index: 2;
+  background: rgba(0, 0, 0, 0.4); /* Optional: adds readability */
+  padding: 1rem;
+  border-radius: 8px;
+}
+ 
+.btn-primary {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background-color: #2e7d32;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+}
+ 
+.btn-primary:hover {
+  background-color: #256029;
+}
+ 
+ 
+.hero h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+ 
+.btn-primary {
+  background: #0077cc; 
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  text-decoration: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+ 
+.section {
+  padding: 3rem 5%;
+}
+ 
+.cbc-benefits {
+  list-style: disc inside;
+  columns: 2;
+}
+ 
+.features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: space-around;
+}
+ 
+.feature-card {
+  flex: 1 1 250px;
+  background: #f0f8ff;
+  padding: 1.5rem;
+  border-radius: 8px;
+}
+ 
+.footer {
+  background: #004d99;
+  color: white;
+  text-align: center;
+  padding: 1rem;
+}

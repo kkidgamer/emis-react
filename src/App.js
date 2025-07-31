@@ -9,6 +9,9 @@ import RegisterUserComponent from './components/RegisterUserComponent';
 import NotFound from './components/NotFoundComponent';
 import RegisterAdminComponent from './components/RegisterAdminComponent';
 import RegisterWorkerComponent from './components/RegisterWorkerComponent';
+import LoginAdminComponent from './components/LoginAdminComponent';
+import LoginUserComponent from './components/LoginUserComponent';
+import LoginWorkerComponent from './components/LoginWorkerComponent';
 
 
 function App() {
@@ -20,6 +23,10 @@ function App() {
         <Route path="/register/user" element={<RegisterUserComponent/>} />
         <Route path="/register/admin" element={<RegisterAdminComponent/>} />
         <Route path="/register/worker" element={<RegisterWorkerComponent/>} />
+        <Route path="/login/user" element={<LoginUserComponent/>} />
+        <Route path="/login/admin" element={<LoginAdminComponent/>} />
+        <Route path="/login/worker" element={<LoginWorkerComponent/>} />
+        
         
 
         <Route path="*" element={<NotFound/>} />

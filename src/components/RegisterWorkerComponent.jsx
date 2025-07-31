@@ -31,7 +31,7 @@ const RegisterWorkerComponent = () => {
                 setSuccess(res.data.message);
                 console.log(res.data);
                 alert('Worker account created successfully. You will be redirected to login page');
-                navigate('/login');
+                navigate('/login/worker');
             } else {
                 setLoading('');
                 setError(res.data.message);
@@ -125,7 +125,7 @@ const RegisterWorkerComponent = () => {
                 </div>
                 <div className="text-center">
                     <p>Already have an account? {' '}
-                        <Link to={'/login'} className='text-decoration-none'>Login</Link>
+                        <Link to={'/login/worker'} className='text-decoration-none'>Login</Link>
                     </p>
                 </div>
             </form>
