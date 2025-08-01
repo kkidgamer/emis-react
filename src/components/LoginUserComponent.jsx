@@ -17,8 +17,8 @@ const ClientLoginComponent = () => {
         setError('');
         setLoading('Logging in...');
         try {
-            const data = { email, password };
-            const res = await axios.post("https://emis-demm.onrender.com/api/client/login", data);
+            const data = { email, password, role: 'client' };
+            const res = await axios.post("https://emis-sh54.onrender.com/api/user", data);
             if (res.data.user) {
                 setLoading('');
                 setSuccess(res.data.message);

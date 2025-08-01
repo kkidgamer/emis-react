@@ -25,7 +25,7 @@ const RegisterWorkerComponent = () => {
         setLoading('Registering worker account');
         try {
             const data = { name, email, phone, profession, nationalId, experience, address, role:'worker', password };
-            const res = await axios.post("https://emis-demm.onrender.com/api/worker", data);
+            const res = await axios.post("https://emis-sh54.onrender.com/api/worker", data);
             if (res.data.newUser) {
                 setLoading('');
                 setSuccess(res.data.message);

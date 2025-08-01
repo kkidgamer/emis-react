@@ -21,7 +21,7 @@ const RegisterAdminComponent = () => {
         setLoading('Registering admin account');
         try {
             const data = { name, email, password, secretKey, role: 'admin' };
-            const res = await axios.post("https://emis-demm.onrender.com/api/user/register", data);
+            const res = await axios.post("https://emis-sh54.onrender.com/api/user/register", data);
             if (res.data.newUser) {
                 setLoading('');
                 setSuccess(res.data.message);

@@ -21,10 +21,11 @@ const RegisterUserComponent = () => {
         setLoading('Registering user account');
         try {
             const data = { name, email, phone, address, password, role: 'client' };
-            const res = await axios.post("https://emis-demm.onrender.com/api/client", data);
-            if (res.data.newUser) {
+            const res = await axios.post("https://emis-sh54.onrender.com/api/client", data);
+            console.log(res.data)
+            if (res.data.client) {
                 setLoading('');
-                setSuccess(res.data.message);
+                setSuccess("ACCOUNT CREATED SUCCESSFULLY");
                 console.log(res.data);
                 alert('Account created successfully. You will be redirected to login page');
                 navigate('/login/user');
