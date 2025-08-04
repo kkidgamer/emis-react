@@ -1,0 +1,43 @@
+.card {
+    border: none;
+    transition: transform 0.2s ease;
+  }
+  
+  .card:hover {
+    transform: translateY(-5px);
+  }
+  
+  .btn-success {
+    transition: background-color 0.3s ease;
+  }
+  
+  .btn-success:hover {
+    background-color: #146c43; /* Darker green for hover */
+  }
+  
+  .password-toggle {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    border: none;
+    background: transparent;
+    z-index: 10;
+  }
+  
+  .input-group .password-toggle i {
+    font-size: 1.2rem;
+  }
+  
+  .input-group .form-control {
+    padding-right: 40px; /* Space for password toggle icon */
+  }
+  
+  @media (max-width: 576px) {
+    .container {
+      padding: 0 15px;
+    }
+    .card {
+      padding: 1.5rem !important;
+    }
+  }

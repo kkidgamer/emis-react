@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import '../css/home.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
 const LandingPage = () => {
     const [contactName, setContactName] = useState('');
@@ -78,7 +80,7 @@ const LandingPage = () => {
                 <div className="container">
                     <h2 className="text-center mb-4 text-success">About EMIS</h2>
                     <p className="text-center">
-                        EMIS (Employment Management Information System) is your trusted platform for connecting households with skilled workers. Whether you're a client seeking professional household services like cleaning, gardening, or childcare, or a worker looking for meaningful employment, EMIS streamlines the process with a user-friendly interface and verified professionals.
+                        EMIS is your trusted platform for connecting households with skilled workers. Whether you're a client seeking professional household services like cleaning, gardening, or childcare, or a worker looking for meaningful employment, EMIS streamlines the process with a user-friendly interface and verified professionals.
                     </p>
                     <p className="text-center">
                         Our mission is to empower households with reliable support and provide workers with fair job opportunities tailored to their skills.
@@ -275,9 +277,11 @@ const LandingPage = () => {
                     <p className="mb-2">&copy; {new Date().getFullYear()} EMIS. All Rights Reserved.</p>
                     <p className="mb-2">Email: support@emis.com | Phone: +123-456-7890</p>
                     <div className="d-flex justify-content-center gap-3">
-                        <a href="https://facebook.com" className="text-light">Facebook</a>
-                        <a href="https://twitter.com" className="text-light">Twitter</a>
-                        <a href="https://linkedin.com" className="text-light">LinkedIn</a>
+                        <Link to='https://facebook.com' className='bi bi-facebook text-light'></Link>
+                        <Link to='https://twitter.com' className='bi bi-twitter-x text-light'></Link>
+                        <Link to='https://linkedin.com' className='bi bi-linkedin text-light'></Link>
+                        <Link to='https://instagram.com' className='bi bi-instagram text-light'></Link>
+                        
                     </div>
                 </div>
             </footer>
