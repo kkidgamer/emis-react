@@ -12,25 +12,41 @@ import RegisterWorkerComponent from './components/RegisterWorkerComponent';
 import LoginAdminComponent from './components/LoginAdminComponent';
 import LoginUserComponent from './components/LoginUserComponent';
 import LoginWorkerComponent from './components/LoginWorkerComponent';
+import AdminLayout from './components/Admin/AdminLayout';
+import AdminDashboard from './components/Admin/AdminDashboard';
+import { AuthProvider } from './components/context/AuthContext';
+import ProtectedRoutes from './components/context/ProtectedRoutes';
+
 
 
 function App() {
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<HomeComponents/>} />
-        <Route path="/register/user" element={<RegisterUserComponent/>} />
-        <Route path="/register/admin" element={<RegisterAdminComponent/>} />
-        <Route path="/register/worker" element={<RegisterWorkerComponent/>} />
-        <Route path="/login/user" element={<LoginUserComponent/>} />
-        <Route path="/login/admin" element={<LoginAdminComponent/>} />
-        <Route path="/login/worker" element={<LoginWorkerComponent/>} />
-        
-        
+      <AuthProvider>
+        <Routes>
+          <Route path="/" element={<HomeComponents/>} />
 
-        <Route path="*" element={<NotFound/>} />
+          {/* Admin protected routes */}
+          <Route path="/admin-dashboard" element={<ProtectedRoutes allowedRoles={['admin']}>
+            <AdminLayout/>
+          </ProtectedRoutes>}>
+            <Route path="" element={<AdminDashboard />} />
+            <Route path="users" element={<div>Manage Users (TBD)</div>} />
+            <Route path="workers" element={<div>Manage Workers (TBD)</div>} />
+            <Route path="reports" element={<div>Reports (TBD)</div>} />
+            <Route path="settings" element={<div>Settings (TBD)</div>} />
+          </Route>
 
+          <Route path="/register/user" element={<RegisterUserComponent/>} />
+          <Route path="/register/admin" element={<RegisterAdminComponent/>} />
+          <Route path="/register/worker" element={<RegisterWorkerComponent/>} />
+          <Route path="/login/user" element={<LoginUserComponent/>} />
+          <Route path="/login/admin" element={<LoginAdminComponent/>} />
+          <Route path="/login/worker" element={<LoginWorkerComponent/>} />
+          
+          <Route path="*" element={<NotFound/>} />
         </Routes>
+      </AuthProvider>
     </Router>
   );
 }

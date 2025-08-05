@@ -24,7 +24,7 @@ const LoginComponent = () => {
                 setSuccess(res.data.message);
                 console.log(res.data);
                 alert('Login successful. You will be redirected to the dashboard');
-                navigate('/dashboard');
+                navigate('/admin-dashboard');
             } else {
                 setLoading('');
                 setError(res.data.message);
