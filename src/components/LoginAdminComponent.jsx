@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { AuthContext } from './context/AuthContext';
 
 const LoginComponent = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const {setToken,setUser}= useContext(AuthContext)
     
     // User interaction
     const [error, setError] = useState('');
@@ -23,6 +25,12 @@ const LoginComponent = () => {
                 setLoading('');
                 setSuccess(res.data.message);
                 console.log(res.data);
+                const { token, user } = res.data;
+                setToken(token)
+                setUser(user)
+                localStorage.setItem("token",token)
+                localStorage.setItem("user",JSON.stringify(user))
+
                 alert('Login successful. You will be redirected to the dashboard');
                 navigate('/admin-dashboard');
             } else {
