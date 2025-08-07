@@ -20,6 +20,7 @@ import Reports from './components/Admin/Reports'; // New import
 import Settings from './components/Admin/Settings'; // New import
 import { AuthProvider } from './components/context/AuthContext';
 import ProtectedRoutes from './components/context/ProtectedRoutes';
+import WorkerDashboard from './components/Worker/WorkerDashboard';
 
 function App() {
   return (
@@ -38,6 +39,22 @@ function App() {
             }
           >
             <Route path="" element={<AdminDashboard />} />
+            <Route path="users" element={<ManageUsers />} />
+            <Route path="workers" element={<ManageWorkers />} />
+            <Route path="reports" element={<Reports />} />
+            <Route path="settings" element={<Settings />} />
+          </Route>
+
+          {/* Worker protected routes */}
+          <Route
+            path="/worker-dashboard"
+            element={
+              <ProtectedRoutes allowedRoles={['worker']}>
+                <WorkerLayout/>
+              </ProtectedRoutes>
+            }
+          >
+            <Route path="" element={<WorkerDashboard />} />
             <Route path="users" element={<ManageUsers />} />
             <Route path="workers" element={<ManageWorkers />} />
             <Route path="reports" element={<Reports />} />

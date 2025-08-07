@@ -30,7 +30,7 @@ const Settings = () => {
     setSuccess('');
     try {
       await axios.put(
-        `https://emis-sh54.onrender.com/api/user/admin/${user._id}`,
+        `https://emis-sh54.onrender.com/api/user/${user._id}`,
         formData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -43,7 +43,7 @@ const Settings = () => {
   };
 
   return (
-  <div>
+  <div className='container mt-3'>
     
       <h1 className="text-success mb-4">Settings</h1>
 

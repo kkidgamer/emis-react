@@ -16,7 +16,7 @@ const AuthProvider = ({children}) => {
         localStorage.clear()
         setToken('')
         setUser(null)
-        navigate('/admin-dashboard')
+        navigate('/')
     },[navigate])
 
     useEffect(() => {
