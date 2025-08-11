@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import '../css/home.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
+import { toast } from 'react-toastify';
 
 const LandingPage = () => {
     const [contactName, setContactName] = useState('');
@@ -11,8 +12,7 @@ const LandingPage = () => {
 
     const handleContactSubmit = (e) => {
         e.preventDefault();
-        // Placeholder for contact form submission (not implemented due to sandbox restrictions)
-        alert('Thank you for your message! We will get back to you soon.');
+        toast.success('Thank you for your message! We will get back to you soon.');
         setContactName('');
         setContactEmail('');
         setContactMessage('');

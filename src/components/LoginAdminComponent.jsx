@@ -2,45 +2,36 @@ import React, { useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from './context/AuthContext';
+import { toast } from 'react-toastify';
 
 const LoginComponent = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const {setToken,setUser}= useContext(AuthContext)
-    
-    // User interaction
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
-    const [loading, setLoading] = useState('');
+    const { setToken, setUser } = useContext(AuthContext);
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
-        setLoading('Logging in...');
+        toast.info('Logging in...');
         try {
             const data = { email, password, role: 'admin' };
             const res = await axios.post("https://emis-sh54.onrender.com/api/user/admin", data);
             if (res.data.user) {
-                setLoading('');
-                setSuccess(res.data.message);
-                console.log(res.data);
                 const { token, user } = res.data;
-                setToken(token)
-                setUser(user)
-                localStorage.setItem("token",token)
-                localStorage.setItem("user",JSON.stringify(user))
-
-                alert('Login successful. You will be redirected to the dashboard');
+                setToken(token);
+                setUser(user);
+                localStorage.setItem("token", token);
+                localStorage.setItem("user", JSON.stringify(user));
+                toast.dismiss();
+                toast.success('Login successful! Redirecting...');
                 navigate('/admin-dashboard');
             } else {
-                setLoading('');
-                setError(res.data.message);
+                toast.dismiss();
+                toast.error(res.data.message || 'Login failed.');
             }
         } catch (error) {
-            setError(error.message);
-            setLoading('');
-            setSuccess('');
+            toast.dismiss();
+            toast.error(error.response?.data?.message || error.message);
         }
     };
 
@@ -49,11 +40,6 @@ const LoginComponent = () => {
             <form onSubmit={handleSubmit} className='card shadow bg-light p-4 rounded'>
                 <h1 className='text-center text-success'>EMIS</h1>
                 <h2 className='text-center mb-4 text-success'>Login</h2>
-
-                {/* Alerts */}
-                {error && <div className="alert alert-danger" role="alert">{error}</div>}
-                {success && <div className="alert alert-success" role="alert">{success}</div>}
-                {loading && <div className="alert alert-info" role="alert">{loading}</div>}
 
                 {/* Inputs */}
                 <input

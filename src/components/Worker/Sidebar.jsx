@@ -4,21 +4,20 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import { AuthContext } from '../context/AuthContext';
 
-const Sidebar = () => {
+const WorkerSidebar = () => {
   const location = useLocation();
   const { logout, user } = useContext(AuthContext);
 
-  // Define worker-specific navigation items
   const navItems = [
     { path: '/worker-dashboard', icon: 'bi-house-door', label: 'Dashboard' },
     { path: '/worker-dashboard/bookings', icon: 'bi-calendar-check', label: 'Bookings' },
     { path: '/worker-dashboard/reviews', icon: 'bi-star', label: 'Reviews' },
+    { path: '/worker-dashboard/services', icon: 'bi-briefcase', label: 'Manage Services' }, // New link
     { path: '/worker-dashboard/settings', icon: 'bi-gear', label: 'Settings' },
   ];
 
-  // Ensure only workers can see the sidebar
   if (!user || user.role !== 'worker') {
-    return null; // Or redirect to login if preferred
+    return null;
   }
 
   return (
@@ -54,4 +53,4 @@ const Sidebar = () => {
   );
 };
 
-export default Sidebar;
+export default WorkerSidebar;

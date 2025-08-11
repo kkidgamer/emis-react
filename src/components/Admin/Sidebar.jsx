@@ -1,13 +1,13 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
-import { AuthContext } from '../context/AuthContext';
-
 
 const Sidebar = () => {
   const location = useLocation();
   const { logout } = useContext(AuthContext);
+  const [expanded, setExpanded] = useState(true);
 
   const navItems = [
     { path: '/admin-dashboard', icon: 'bi-house-door', label: 'Dashboard' },
@@ -18,34 +18,51 @@ const Sidebar = () => {
   ];
 
   return (
-    <div className="d-flex flex-column flex-shrink-0 p-3 bg-success text-white vh-100" style={{ width: '250px' }}>
-      <Link to="/admin-dashboard" className="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
-        <span className="fs-4">EMIS Admin</span>
-      </Link>
-      <hr />
+    <div
+      className={`bg-success text-white vh-100 d-flex flex-column`}
+      style={{
+        width: expanded ? '250px' : '70px',
+        transition: 'width 0.3s ease',
+      }}
+      onMouseEnter={() => window.innerWidth < 768 && setExpanded(true)}
+      onMouseLeave={() => window.innerWidth < 768 && setExpanded(false)}
+    >
+      {/* Logo / Toggle */}
+      <div className="d-flex align-items-center justify-content-between p-3">
+        {expanded && <span className="fs-5">EMIS</span>}
+        <button
+          className="btn btn-outline-light btn-sm"
+          onClick={() => setExpanded(!expanded)}
+        >
+          <i className={`bi ${expanded ? 'bi-chevron-left' : 'bi-chevron-right'}`}></i>
+        </button>
+      </div>
+
+      {/* Navigation */}
       <ul className="nav nav-pills flex-column mb-auto">
         {navItems.map((item) => (
-          <li className="nav-item" key={item.path}>
+          <li key={item.path}>
             <Link
               to={item.path}
-              className={`nav-link text-white ${location.pathname === item.path ? 'active' : ''}`}
+              className={`nav-link text-white d-flex align-items-center ${location.pathname === item.path ? 'active' : ''}`}
             >
-              <i className={`bi ${item.icon} me-2`}></i>
-              {item.label}
+              <i className={`bi ${item.icon} me-${expanded ? '2' : '0'} fs-5`}></i>
+              {expanded && <span>{item.label}</span>}
             </Link>
           </li>
         ))}
       </ul>
-      <hr />
-      <div className="dropdown">
-        <button
-          onClick={logout}
-          className="d-flex align-items-center text-white text-decoration-none border-0 bg-transparent"
-        >
-          <i className="bi bi-box-arrow-left me-2"></i>
-          <strong>Logout</strong>
-        </button>
-      </div>
+
+      <hr className="text-white" />
+
+      {/* Logout */}
+      <button
+        onClick={logout}
+        className="btn btn-link text-white d-flex align-items-center"
+      >
+        <i className="bi bi-box-arrow-left fs-5"></i>
+        {expanded && <span className="ms-2">Logout</span>}
+      </button>
     </div>
   );
 };

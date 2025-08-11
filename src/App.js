@@ -21,6 +21,17 @@ import Settings from './components/Admin/Settings'; // New import
 import { AuthProvider } from './components/context/AuthContext';
 import ProtectedRoutes from './components/context/ProtectedRoutes';
 import WorkerDashboard from './components/Worker/WorkerDashboard';
+import WorkerLayout from './components/Worker/WorkerLayout';
+import ManageServices from './components/Worker/ManageServices';
+import { ToastContainer } from 'react-toastify';
+import UserDashboard from './components/User/UserDashboard';
+import UserLayout from './components/User/UserLayout';
+import BookService from './components/User/BookService';
+import MyBookings from './components/User/MyBookings';
+import ServicesList from './components/User/ServicesList';
+import ServiceDetails from './components/User/ServiceDetails';
+
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   return (
@@ -49,17 +60,37 @@ function App() {
           <Route
             path="/worker-dashboard"
             element={
-              <ProtectedRoutes allowedRoles={['worker']}>
+             
                 <WorkerLayout/>
-              </ProtectedRoutes>
+              
             }
           >
             <Route path="" element={<WorkerDashboard />} />
             <Route path="users" element={<ManageUsers />} />
             <Route path="workers" element={<ManageWorkers />} />
+            <Route path='services' element={<ManageServices/>}/>
             <Route path="reports" element={<Reports />} />
             <Route path="settings" element={<Settings />} />
           </Route>
+
+          {/* User protected routes */}
+          <Route
+            path="/user-dashboard"
+            element={
+             
+                <UserLayout/>
+              
+            }
+          >
+            <Route path="" element={<UserDashboard />} />
+            <Route path="services" element={<ServicesList />} />
+            <Route path="services/:id" element={<ServiceDetails />} />
+            <Route path="book/:id" element={<BookService />} />
+            <Route path="bookings" element={<MyBookings />} />
+            <Route path="settings" element={<Settings />} />
+            
+          </Route>
+
 
           <Route path="/register/user" element={<RegisterUserComponent />} />
           <Route path="/register/admin" element={<RegisterAdminComponent />} />
@@ -70,6 +101,20 @@ function App() {
 
           <Route path="*" element={<NotFound />} />
         </Routes>
+
+
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          pauseOnHover
+          draggable
+          pauseOnFocusLoss={false}
+          limit={1} // 🔹 This ensures only ONE toast at a time
+        />
+
       </AuthProvider>
     </Router>
   );
