@@ -31,7 +31,7 @@ const ManageServices = () => {
       setLoading(true);
       setError('');
       try {
-        const response = await axios.get('https://emis-sh54.onrender.com/api/services/worker', {
+        const response = await axios.get('https://emis-sh54.onrender.com/api/service', {
           headers: { Authorization: `Bearer ${token}` },
         });
         setServices(response.data);

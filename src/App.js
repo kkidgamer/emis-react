@@ -60,9 +60,9 @@ function App() {
           <Route
             path="/worker-dashboard"
             element={
-             
+             <ProtectedRoutes allowedRoles={['worker']}>
                 <WorkerLayout/>
-              
+              </ProtectedRoutes>
             }
           >
             <Route path="" element={<WorkerDashboard />} />
