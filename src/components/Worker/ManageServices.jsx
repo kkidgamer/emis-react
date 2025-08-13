@@ -1,238 +1,237 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
+import { AuthContext } from '../context/AuthContext';
+import { toast } from 'react-toastify';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
-import { AuthContext } from '../context/AuthContext';
 
 const ManageServices = () => {
   const [services, setServices] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     category: '',
     price: '',
     duration: '',
+    status:'active'
   });
-  const [editingServiceId, setEditingServiceId] = useState(null);
-  const { token, user } = useContext(AuthContext);
+  const [editingService, setEditingService] = useState(null);
+  const { token } = useContext(AuthContext);
+  const API_URL = 'https://emis-sh54.onrender.com/api';
 
-  // Fetch services for the worker
   useEffect(() => {
     const fetchServices = async () => {
-      if (!user || user.role !== 'worker') {
-        setError('Unauthorized access. Please log in as a worker.');
-        setLoading(false);
-        return;
-      }
-
       setLoading(true);
-      setError('');
       try {
-        const response = await axios.get('https://emis-sh54.onrender.com/api/service', {
+        const response = await axios.get(`${API_URL}/service/worker`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setServices(response.data);
-        setLoading(false);
+        toast.success('Services loaded successfully!');
       } catch (err) {
-        setError(err.response?.data?.error || 'Failed to fetch services.');
+        toast.error(err.response?.data?.message || 'Failed to fetch services.');
+      } finally {
         setLoading(false);
       }
     };
     fetchServices();
-  }, [token, user]);
+  }, [token]);
 
-  // Handle form input changes
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
   };
 
-  // Handle service creation or update
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
     setLoading(true);
-
     try {
-      if (editingServiceId) {
-        // Update existing service
-        const response = await axios.put(
-          `https://emis-sh54.onrender.com/api/service/${editingServiceId}`,
-          formData,
+      if (editingService) {
+        await axios.put(
+          `${API_URL}/service/${editingService._id}`,
+          { ...formData, price: Number(formData.price), duration: Number(formData.duration) },
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        setServices(services.map((service) =>
-          service._id === editingServiceId ? response.data : service
-        ));
-        setSuccess('Service updated successfully.');
+        setServices(services.map((s) => (s._id === editingService._id ? { ...s, ...formData } : s)));
+        toast.success('Service updated successfully!');
       } else {
-        // Create new service
         const response = await axios.post(
-          'https://emis-sh54.onrender.com/api/service',
-          formData,
+          `${API_URL}/service`,
+          { ...formData, price: Number(formData.price), duration: Number(formData.duration) },
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        setServices([...services, response.data]);
-        setSuccess('Service created successfully.');
+        setServices([...services, response.data.service]);
+        toast.success('Service created successfully!');
       }
-      // Reset form
       setFormData({ title: '', description: '', category: '', price: '', duration: '' });
-      setEditingServiceId(null);
+      setEditingService(null);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to save service.');
+      toast.error(err.response?.data?.message || 'Failed to save service.');
     } finally {
       setLoading(false);
     }
   };
 
-  // Handle edit button click
   const handleEdit = (service) => {
     setFormData({
       title: service.title,
-      description: service.description,
+      description: service.description || '',
       category: service.category,
-      price: service.price,
-      duration: service.duration,
+      status:service.status,
+      price: service.price.toString(),
+      duration: service.duration.toString(),
     });
-    setEditingServiceId(service._id);
+    setEditingService(service);
   };
 
-  // Handle delete button click
-  const handleDelete = async (serviceId) => {
+  const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this service?')) {
+      setLoading(true);
       try {
-        await axios.delete(`https://emis-sh54.onrender.com/api/service/${serviceId}`, {
+        await axios.delete(`${API_URL}/service/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setServices(services.filter((service) => service._id !== serviceId));
-        setSuccess('Service deleted successfully.');
+        setServices(services.filter((s) => s._id !== id));
+        toast.success('Service deleted successfully!');
       } catch (err) {
-        setError(err.response?.data?.message || 'Failed to delete service.');
+        toast.error(err.response?.data?.message || 'Failed to delete service.');
+      } finally {
+        setLoading(false);
       }
     }
   };
 
   return (
     <div>
-      <h1 className="text-success mb-4">Manage Services</h1>
-
       {loading && <div className="alert alert-info" role="alert">Loading...</div>}
-      {error && <div className="alert alert-danger" role="alert">{error}</div>}
-      {success && <div className="alert alert-success" role="alert">{success}</div>}
-
-      {/* Service Creation/Update Form */}
-      <div className="card shadow mb-4" style={{ maxWidth: '600px' }}>
+      <h2 className="text-success mb-4">
+        <i className="bi bi-list-task me-2"></i>Manage Services
+      </h2>
+      <div className="card shadow mb-4">
+        <div className="card-header bg-success text-white">
+          <h5 className="mb-0">{editingService ? 'Edit Service' : 'Add New Service'}</h5>
+        </div>
         <div className="card-body">
-          <h4 className="card-title text-success">
-            {editingServiceId ? 'Update Service' : 'Create New Service'}
-          </h4>
           <form onSubmit={handleSubmit}>
-            <div className="mb-3">
-              <label htmlFor="title" className="form-label">Title</label>
-              <input
-                type="text"
-                className="form-control"
-                id="title"
-                name="title"
-                value={formData.title}
-                onChange={handleChange}
-                required
-              />
+            <div className="row">
+              <div className="col-md-6 mb-3">
+                <label className="form-label">Title</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  name="title"
+                  value={formData.title}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div className="col-md-6 mb-3">
+                <label className="form-label">Category</label>
+                <select
+                  className="form-select"
+                  name="category"
+                  value={formData.category}
+                  onChange={handleInputChange}
+                  required
+                >
+                  <option value="">Select Category</option>
+                  {['plumbing', 'electrical', 'cooking', 'cleaning', 'carpentry', 'other'].map((cat) => (
+                    <option key={cat} value={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</option>
+                  ))}
+                </select>
+              </div>
             </div>
             <div className="mb-3">
-              <label htmlFor="description" className="form-label">Description</label>
+              <label className="form-label">Description</label>
               <textarea
                 className="form-control"
-                id="description"
                 name="description"
                 value={formData.description}
-                onChange={handleChange}
+                onChange={handleInputChange}
                 rows="4"
-                required
               ></textarea>
             </div>
-            <div className="mb-3">
-              <label htmlFor="category" className="form-label">Category</label>
-              <select
-                className="form-control"
-                id="category"
-                name="category"
-                value={formData.category}
-                onChange={handleChange}
-                required
-              >
-                <option value="">Select a category</option>
-                <option value="Cleaning">Cleaning</option>
-                <option value="Gardening">Gardening</option>
-                <option value="Childcare">Childcare</option>
-                <option value="Personal Assistance">Personal Assistance</option>
-              </select>
-            </div>
-            <div className="mb-3">
-              <label htmlFor="price" className="form-label">Price ($)</label>
-              <input
-                type="number"
-                className="form-control"
-                id="price"
-                name="price"
-                value={formData.price}
-                onChange={handleChange}
-                min="0"
-                step="0.01"
-                required
-              />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="duration" className="form-label">Duration (hours)</label>
-              <input
-                type="number"
-                className="form-control"
-                id="duration"
-                name="duration"
-                value={formData.duration}
-                onChange={handleChange}
-                min="0"
-                step="0.5"
-                required
-              />
-            </div>
-            <div className="d-grid">
-              <button type="submit" className="btn btn-success" disabled={loading}>
-                {editingServiceId ? 'Update Service' : 'Create Service'}
-              </button>
-              {editingServiceId && (
-                <button
-                  type="button"
-                  className="btn btn-secondary mt-2"
-                  onClick={() => {
-                    setFormData({ title: '', description: '', category: '', price: '', duration: '' });
-                    setEditingServiceId(null);
-                  }}
+            <div className="row">
+              <div className="col-md-6 mb-3">
+                <label className="form-label">Price ($)</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  name="price"
+                  value={formData.price}
+                  onChange={handleInputChange}
+                  min="0"
+                  required
+                />
+              </div>
+              <div className="col-md-6 mb-3">
+                <label className="form-label">Duration (minutes)</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  name="duration"
+                  value={formData.duration}
+                  onChange={handleInputChange}
+                  min="0"
+                  required
+                />
+              </div>
+              <div className="col-md-6 mb-3">
+                <label className="form-label">Status</label>
+                <select
+                  className="form-select"
+                  name="status"
+                  value={formData.status}
+                  onChange={handleInputChange}
+                  required
                 >
-                  Cancel Edit
-                </button>
-              )}
+                  <option value="">Select Status</option>
+                  {['active', 'inactive'].map((cat) => (
+                    <option key={cat} value={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</option>
+                  ))}
+                </select>
+              </div>
             </div>
+            <button type="submit" className="btn btn-success" disabled={loading}>
+              {loading ? (
+                <>
+                  <span className="spinner-border spinner-border-sm me-2"></span>
+                  Saving...
+                </>
+              ) : (
+                <><i className="bi bi-save me-2"></i>{editingService ? 'Update' : 'Create'} Service</>
+              )}
+            </button>
+            {editingService && (
+              <button
+                type="button"
+                className="btn btn-secondary ms-2"
+                onClick={() => {
+                  setFormData({ title: '', description: '', category: '', price: '', duration: '' });
+                  setEditingService(null);
+                }}
+              >
+                Cancel
+              </button>
+            )}
           </form>
         </div>
       </div>
-
-      {/* Services List */}
       <div className="card shadow">
+        <div className="card-header bg-success text-white">
+          <h5 className="mb-0"><i className="bi bi-list-task me-2"></i>Services</h5>
+        </div>
         <div className="card-body">
-          <h4 className="card-title text-success">Your Services</h4>
-          {services.length > 0 ? (
+          {services.length ? (
             <div className="table-responsive">
-              <table className="table table-striped">
+              <table className="table table-hover">
                 <thead>
                   <tr>
                     <th>Title</th>
                     <th>Category</th>
                     <th>Price ($)</th>
-                    <th>Duration (hrs)</th>
+                    <th>Duration (min)</th>
                     <th>Status</th>
                     <th>Actions</th>
                   </tr>
@@ -244,19 +243,23 @@ const ManageServices = () => {
                       <td>{service.category}</td>
                       <td>{service.price}</td>
                       <td>{service.duration}</td>
-                      <td>{service.status}</td>
+                      <td>
+                        <span className={`badge bg-${service.status === 'active' ? 'success' : 'secondary'}`}>
+                          {service.status.toUpperCase()}
+                        </span>
+                      </td>
                       <td>
                         <button
-                          className="btn btn-sm btn-warning me-2"
+                          className="btn btn-outline-primary btn-sm me-2"
                           onClick={() => handleEdit(service)}
                         >
-                          Edit
+                          <i className="bi bi-pencil"></i>
                         </button>
                         <button
-                          className="btn btn-sm btn-danger"
+                          className="btn btn-outline-danger btn-sm"
                           onClick={() => handleDelete(service._id)}
                         >
-                          Delete
+                          <i className="bi bi-trash"></i>
                         </button>
                       </td>
                     </tr>
@@ -265,7 +268,10 @@ const ManageServices = () => {
               </table>
             </div>
           ) : (
-            <p className="text-muted">No services found. Create one above!</p>
+            <div className="text-center py-4">
+              <i className="bi bi-list-task display-1 text-muted"></i>
+              <p className="text-muted mt-3">No services found.</p>
+            </div>
           )}
         </div>
       </div>

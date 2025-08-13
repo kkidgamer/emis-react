@@ -24,7 +24,8 @@ const WorkerLoginComponent = () => {
             if (res.data.user) {
                 setLoading('');
                 setSuccess(res.data.message);
-                const { token, user } = res.data;
+                
+                const { token, user } = res.data
                 setToken(token)
                 setUser(user)
                 localStorage.setItem("token",token)

@@ -32,6 +32,9 @@ import ServicesList from './components/User/ServicesList';
 import ServiceDetails from './components/User/ServiceDetails';
 
 import 'react-toastify/dist/ReactToastify.css';
+import ManageReviews from './components/Worker/ManageReviews';
+import ManageSubscription from './components/Worker/ManageSubscription';
+import ManageBookings from './components/Worker/ManageBookings';
 
 function App() {
   return (
@@ -58,20 +61,19 @@ function App() {
 
           {/* Worker protected routes */}
           <Route
-            path="/worker-dashboard"
-            element={
-             <ProtectedRoutes allowedRoles={['worker']}>
-                <WorkerLayout/>
-              </ProtectedRoutes>
-            }
-          >
-            <Route path="" element={<WorkerDashboard />} />
-            <Route path="users" element={<ManageUsers />} />
-            <Route path="workers" element={<ManageWorkers />} />
-            <Route path='services' element={<ManageServices/>}/>
-            <Route path="reports" element={<Reports />} />
-            <Route path="settings" element={<Settings />} />
-          </Route>
+        path="/worker"
+        element={
+          <ProtectedRoutes allowedRoles={['worker']}>
+            <WorkerLayout />
+          </ProtectedRoutes>
+        }
+      >
+        <Route path="dashboard" element={<WorkerDashboard />} />
+        <Route path="services" element={<ManageServices />} />
+        <Route path="bookings" element={<ManageBookings />} />
+        <Route path="reviews" element={<ManageReviews />} />
+        <Route path="subscription" element={<ManageSubscription />} />
+      </Route>
 
           {/* User protected routes */}
           <Route
