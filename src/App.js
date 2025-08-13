@@ -86,7 +86,7 @@ function App() {
           >
             <Route path="" element={<UserDashboard />} />
             <Route path="services" element={<ServicesList />} />
-            <Route path="services/:id" element={<ServiceDetails />} />
+            <Route path="services/details/:id" element={<ServiceDetails />} />
             <Route path="book/:id" element={<BookService />} />
             <Route path="bookings" element={<MyBookings />} />
             <Route path="settings" element={<Settings />} />

@@ -9,7 +9,7 @@ const AdminLayout = () => {
     <div className="d-flex" style={{ maxHeight: '100vh' }}>
       <Sidebar />
       <div className="flex-grow-1 p-4 bg-light">
-        <div className="container-fluid" style={{overflowY:"auto" , maxHeight:"100vh"}}>
+        <div className="container-fluid" style={{overflowY:"auto" , maxHeight:"100vh", overflowX:"auto"}}>
           <Outlet />
         </div>
       </div>

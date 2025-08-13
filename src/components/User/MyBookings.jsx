@@ -15,7 +15,7 @@ const MyBookings = () => {
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const res = await axios.get('https://emis-sh54.onrender.com/api/bookings/me', {
+        const res = await axios.get('https://emis-sh54.onrender.com/api/booking', {
           headers: { Authorization: `Bearer ${token}` }
         });
         setBookings(res.data);

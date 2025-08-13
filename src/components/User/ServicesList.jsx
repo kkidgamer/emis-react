@@ -17,15 +17,15 @@ const ServicesList = () => {
     const fetchServices = async () => {
       try {
         const res = await axios.get('https://emis-sh54.onrender.com/api/service', {
-          headers: token ? { Authorization: `Bearer ${token}` } : {}
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
         });
         if (res.data.length === 0) {
-          toast.info("No services available at the moment.");
+          toast.info('No services available at the moment.');
         }
         setServices(res.data);
         setFilteredServices(res.data);
       } catch (err) {
-        toast.error(err.response?.data?.message || "Failed to fetch services.");
+        toast.error(err.response?.data?.message || 'Failed to fetch services.');
       } finally {
         setLoading(false);
       }
@@ -38,10 +38,11 @@ const ServicesList = () => {
     const keyword = e.target.value.toLowerCase();
     setSearch(keyword);
     if (keyword) {
-      const filtered = services.filter(s =>
-        s.title.toLowerCase().includes(keyword) ||
-        s.description?.toLowerCase().includes(keyword) ||
-        s.workerId?.name?.toLowerCase().includes(keyword)
+      const filtered = services.filter(
+        (s) =>
+          s.title.toLowerCase().includes(keyword) ||
+          s.description?.toLowerCase().includes(keyword) ||
+          s.workerId?.name?.toLowerCase().includes(keyword)
       );
       setFilteredServices(filtered);
       setCurrentPage(1);
@@ -76,7 +77,7 @@ const ServicesList = () => {
 
       {/* Services Grid */}
       <div className="row">
-        {currentServices.map(service => (
+        {currentServices.map((service) => (
           <div key={service._id} className="col-md-4 col-sm-6 mb-4">
             <div className="card h-100 shadow-sm">
               <img
@@ -91,11 +92,12 @@ const ServicesList = () => {
                 <p className="fw-bold text-success">
                   {service.price ? `KES ${service.price}` : 'Price on request'}
                 </p>
-                <small className="text-muted">
-                  By {service.workerId?.name || "Unknown Worker"}
-                </small>
+                <small className="text-muted">By {service.workerId?.name || 'Unknown Worker'}</small>
                 <div className="mt-auto">
-                  <Link to={`/services/${service._id}`} className="btn btn-success w-100 mt-3">
+                  <Link
+                    to={`/user-dashboard/services/details/${service._id}`}
+                    className="btn btn-success w-100 mt-3"
+                  >
                     View Details
                   </Link>
                 </div>
@@ -110,14 +112,8 @@ const ServicesList = () => {
         <nav>
           <ul className="pagination justify-content-center">
             {[...Array(totalPages)].map((_, i) => (
-              <li
-                key={i}
-                className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}
-              >
-                <button
-                  className="page-link"
-                  onClick={() => setCurrentPage(i + 1)}
-                >
+              <li key={i} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
+                <button className="page-link" onClick={() => setCurrentPage(i + 1)}>
                   {i + 1}
                 </button>
               </li>

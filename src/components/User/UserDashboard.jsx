@@ -16,7 +16,7 @@ const UserDashboard = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await axios.get('https://emis-sh54.onrender.com/api/bookings/me', {
+        const res = await axios.get('https://emis-sh54.onrender.com/api/booking', {
           headers: { Authorization: `Bearer ${token}` }
         });
 

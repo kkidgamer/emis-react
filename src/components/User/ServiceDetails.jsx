@@ -5,7 +5,7 @@ import { AuthContext } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 
 const ServiceDetails = () => {
-  const { id } = useParams();
+  const { id } = useParams(); // Get service ID from URL params
   const navigate = useNavigate();
   const { token } = useContext(AuthContext);
   const [service, setService] = useState(null);
@@ -14,20 +14,22 @@ const ServiceDetails = () => {
   useEffect(() => {
     const fetchService = async () => {
       try {
-        const res = await axios.get(`https://emis-sh54.onrender.com/api/service/${id}`);
+        const res = await axios.get(`https://emis-sh54.onrender.com/api/service/${id}`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
         setService(res.data);
       } catch (err) {
-        toast.error(err.response?.data?.message || "Failed to load service details");
+        toast.error(err.response?.data?.message || 'Failed to load service details');
       } finally {
         setLoading(false);
       }
     };
     fetchService();
-  }, [id]);
+  }, [id, token]); // Include token in dependencies in case it changes
 
   const handleBookNow = () => {
     if (!token) {
-      toast.warning("Please login to book this service.");
+      toast.warning('Please login to book this service.');
       navigate('/login');
     } else {
       navigate(`/user-dashboard/book/${id}`);
@@ -51,7 +53,7 @@ const ServiceDetails = () => {
         {service.price ? `KES ${service.price}` : 'Price on request'}
       </p>
       <p>
-        <strong>Worker:</strong> {service.workerId?.name || "Unknown"}
+        <strong>Worker:</strong> {service.workerId?.name || 'Unknown'}
       </p>
 
       <button className="btn btn-success" onClick={handleBookNow}>
@@ -63,9 +65,9 @@ const ServiceDetails = () => {
         <h5>Reviews</h5>
         {service.reviews && service.reviews.length > 0 ? (
           <ul className="list-group">
-            {service.reviews.map(r => (
+            {service.reviews.map((r) => (
               <li key={r._id} className="list-group-item">
-                <strong>{r.reviewerId?.name || "Anonymous"}:</strong> {r.comment}  
+                <strong>{r.reviewerId?.name || 'Anonymous'}:</strong> {r.comment}
                 <span className="text-warning"> ★ {r.rating}</span>
               </li>
             ))}
