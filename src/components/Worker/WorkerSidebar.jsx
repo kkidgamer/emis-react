@@ -12,6 +12,7 @@ const WorkerSidebar = () => {
     { path: '/worker/dashboard', icon: 'bi-house-door', label: 'Dashboard' },
     { path: '/worker/bookings', icon: 'bi-calendar-check', label: 'Bookings' },
     { path: '/worker/services', icon: 'bi-list-task', label: 'Services' },
+    { path: '/worker/messages', icon: 'bi-chat-dots', label: 'Messages' }, // Add this line
     { path: '/worker/reviews', icon: 'bi-star', label: 'Reviews' },
     { path: '/worker/subscription', icon: 'bi-credit-card', label: 'Subscription' },
   ];

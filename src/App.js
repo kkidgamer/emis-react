@@ -35,6 +35,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import ManageReviews from './components/Worker/ManageReviews';
 import ManageSubscription from './components/Worker/ManageSubscription';
 import ManageBookings from './components/Worker/ManageBookings';
+import Messages from './components/Worker/Messages';
 
 function App() {
   return (
@@ -72,6 +73,7 @@ function App() {
         <Route path="services" element={<ManageServices />} />
         <Route path="bookings" element={<ManageBookings />} />
         <Route path="reviews" element={<ManageReviews />} />
+        <Route path="/worker/messages" element={<Messages />} />
         <Route path="subscription" element={<ManageSubscription />} />
       </Route>
 

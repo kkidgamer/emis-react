@@ -32,7 +32,7 @@ const WorkerLoginComponent = () => {
                 localStorage.setItem("user",JSON.stringify(user))
 
                 alert('Login successful. You will be redirected to the dashboard');
-                navigate('/worker-dashboard');
+                navigate('/worker/dashboard');
             } else {
                 setLoading('');
                 setError(res.data.message);
