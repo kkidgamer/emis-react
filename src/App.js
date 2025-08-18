@@ -36,6 +36,7 @@ import ManageReviews from './components/Worker/ManageReviews';
 import ManageSubscription from './components/Worker/ManageSubscription';
 import ManageBookings from './components/Worker/ManageBookings';
 import Messages from './components/Worker/Messages';
+import AccountSelection from './components/AccountSelection';
 
 function App() {
   return (
@@ -43,6 +44,7 @@ function App() {
       <AuthProvider>
         <Routes>
           <Route path="/" element={<HomeComponents />} />
+          <Route path="/acc" element={<AccountSelection />} />
 
           {/* Admin protected routes */}
           <Route

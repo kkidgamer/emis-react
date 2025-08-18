@@ -70,7 +70,7 @@ const LandingPage = () => {
                     <p className="lead">Find reliable household help or rewarding job opportunities with EMIS.</p>
                     <div className="d-flex justify-content-center gap-3">
                         <a href="#services" className="btn btn-success">Explore Services</a>
-                        <Link to="/login" className="btn btn-outline-light">Login Now</Link>
+                        <Link to="/acc" className="btn btn-outline-light">Login Now</Link>
                     </div>
                 </div>
             </section>
