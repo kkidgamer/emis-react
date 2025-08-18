@@ -9,10 +9,10 @@ const BookService = () => {
   const { token } = useContext(AuthContext);
   const navigate = useNavigate();
   const [form, setForm] = useState({
-    date: '',
+    
     startTime: '',
     endTime: '',
-    notes: '',
+    
   });
   const [service, setService] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -49,80 +49,58 @@ const BookService = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!token) {
-      toast.error('Authentication required. Please login.');
-      navigate('/login');
-      return;
-    }
+  e.preventDefault();
+  if (!token) {
+    toast.error('Authentication required. Please login.');
+    navigate('/login');
+    return;
+  }
 
-    // Validate date
-    const selectedDate = new Date(form.date);
-    const now = new Date(); // Current date and time: 2025-08-13 10:33 AM EAT
-    now.setHours(0, 0, 0, 0); // Reset time for date comparison
-    if (form.date && selectedDate < now) {
-      toast.error('Cannot book a service for a past date.');
-      return;
-    }
+  // Parse input values directly from datetime-local fields
+  const start = new Date(form.startTime);
+  const end = new Date(form.endTime);
+  const now = new Date();
 
-    // Validate startTime and endTime
-    if (form.date && form.startTime && form.endTime) {
-      const start = new Date(`${form.date}T${form.startTime}:00+03:00`);
-      const end = new Date(`${form.date}T${form.endTime}:00+03:00`);
+  // Validation checks
+  if (end <= start) {
+    toast.error('End time must be after start time.');
+    return;
+  }
+  if (start < now) {
+    toast.error('Cannot book a time slot in the past.');
+    return;
+  }
+  if (start.getHours() < 8 || end.getHours() > 18) {
+    toast.error('Bookings are only allowed between 8:00 AM and 6:00 PM.');
+    return;
+  }
 
-      // Check if endTime is after startTime
-      if (end <= start) {
-        toast.error('End time must be after start time.');
-        return;
-      }
+  setLoading(true);
+  try {
+    const response = await axios.post(
+      'https://emis-sh54.onrender.com/api/booking',
+      {
+        serviceId: id,
+        startTime: form.startTime, // already ISO-like from datetime-local
+        endTime: form.endTime,
+      },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
 
-      // Check if booking is in the past (for same-day bookings)
-      if (selectedDate.toDateString() === now.toDateString() && start <= now) {
-        toast.error('Cannot book a time slot in the past.');
-        return;
-      }
-
-      // Validate business hours (8:00 AM to 6:00 PM)
-      const startHour = start.getHours();
-      const endHour = end.getHours();
-      if (startHour < 8 || endHour > 18) {
-        toast.error('Bookings are only allowed between 8:00 AM and 6:00 PM.');
-        return;
-      }
-    }
-
-    // Format startTime and endTime as ISO 8601 with EAT timezone
-    const startTimeISO = form.date && form.startTime ? `${form.date}T${form.startTime}:00+03:00` : undefined;
-    const endTimeISO = form.date && form.endTime ? `${form.date}T${form.endTime}:00+03:00` : undefined;
-
-    setLoading(true);
-    try {
-      const response = await axios.post(
-        'https://emis-sh54.onrender.com/api/booking',
-        {
-          serviceId: id,
-          startTime: startTimeISO,
-          endTime: endTimeISO,
-          notes: form.notes.trim() || undefined, // Send undefined if notes are empty
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      toast.success(response.data.message || 'Service booked successfully!');
+    if (!response.data.message) {
+      toast.success('Service booked successfully!');
       navigate('/user-dashboard/bookings');
-    } catch (err) {
-      const errorMessage = err.response?.data?.message || 'Booking failed. Please try again.';
-      if (err.response?.status === 401) {
-        toast.error('Session expired. Please login again.');
-        navigate('/login');
-      } else if (err.response?.status === 403) {
-        toast.error('You do not have permission to book this service.');
-      } else {
-        toast.error(errorMessage);
-      }
-    } finally {
-      setLoading(false);
+    } else {
+      toast.error(response.data.message);
     }
-  };
+  } catch (err) {
+    console.error('Booking error:', err);
+    toast.info(err.response?.data?.message || 'Booking failed.');
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   if (serviceLoading) {
     return (
@@ -143,7 +121,7 @@ const BookService = () => {
         </div>
       )}
       <form onSubmit={handleSubmit}>
-        <div className="mb-3">
+        {/* <div className="mb-3">
           <label htmlFor="date" className="form-label">
             Date
           </label>
@@ -157,13 +135,13 @@ const BookService = () => {
             required
             min={new Date().toISOString().split('T')[0]} // Prevent past dates
           />
-        </div>
+        </div> */}
         <div className="mb-3">
           <label htmlFor="startTime" className="form-label">
             Start Time
           </label>
           <input
-            type="time"
+            type="datetime-local"
             className="form-control"
             id="startTime"
             name="startTime"
@@ -178,7 +156,7 @@ const BookService = () => {
             End Time
           </label>
           <input
-            type="time"
+            type="datetime-local"
             className="form-control"
             id="endTime"
             name="endTime"
@@ -188,7 +166,7 @@ const BookService = () => {
             step="900" // 15-minute intervals
           />
         </div>
-        <div className="mb-3">
+        {/* <div className="mb-3">
           <label htmlFor="notes" className="form-label">
             Notes
           </label>
@@ -201,7 +179,7 @@ const BookService = () => {
             onChange={handleChange}
             placeholder="Any additional details or requests..."
           />
-        </div>
+        </div> */}
         <button
           className="btn btn-success w-100"
           type="submit"

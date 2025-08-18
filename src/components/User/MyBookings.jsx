@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 const MyBookings = () => {
   const { token } = useContext(AuthContext);
@@ -11,6 +12,7 @@ const MyBookings = () => {
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const bookingsPerPage = 5;
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -32,7 +34,7 @@ const MyBookings = () => {
   const handleCancel = async (id) => {
     if (window.confirm("Cancel this booking?")) {
       try {
-        await axios.delete(`https://emis-sh54.onrender.com/api/bookings/${id}`, {
+        await axios.put(`https://emis-sh54.onrender.com/api/booking/${id}/cancel`,{}, {
           headers: { Authorization: `Bearer ${token}` }
         });
         toast.success("Booking cancelled");
@@ -40,7 +42,7 @@ const MyBookings = () => {
         setBookings(updated);
         setFilteredBookings(updated);
       } catch (err) {
-        toast.error(err.response?.data?.message || "Failed to cancel booking");
+        toast.info(err.response?.data?.message || "Failed to cancel booking");
       }
     }
   };
@@ -60,6 +62,27 @@ const MyBookings = () => {
     } else {
       setFilteredBookings(bookings);
     }
+  };
+
+  const handleStartChat = async (booking) => {
+    try {
+      // Optional: create a first message if none exists yet
+      await axios.post(
+        `https://emis-sh54.onrender.com/api/message`,
+        {
+          receiverId: booking.workerId._id, // chat with the worker
+          bookingId: booking._id,
+          content: "Hello, I'd like to discuss this booking"
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+    } catch (err) {
+      // ignore if conversation already exists
+      console.log("Chat may already exist:", err.response?.data?.message);
+    }
+
+    // Navigate to Messages page with booking pre-selected
+    navigate('/user-dashboard/messages', { state: { booking } });
   };
 
   // Pagination
@@ -107,12 +130,18 @@ const MyBookings = () => {
                   <td>
                     {b.status === 'pending' && (
                       <button
-                        className="btn btn-sm btn-danger"
+                        className="btn btn-sm btn-danger me-2"
                         onClick={() => handleCancel(b._id)}
                       >
                         Cancel
                       </button>
                     )}
+                    <button
+                      className="btn btn-sm btn-success"
+                      onClick={() => handleStartChat(b)}
+                    >
+                      Message
+                    </button>
                   </td>
                 </tr>
               ))}

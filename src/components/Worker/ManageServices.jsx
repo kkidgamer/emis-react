@@ -28,9 +28,12 @@ const ManageServices = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         setServices(response.data);
+        console.log('Fetched services:', response.data);
         toast.success('Services loaded successfully!');
+
       } catch (err) {
         toast.error(err.response?.data?.message || 'Failed to fetch services.');
+        console.error('Error fetching services:', err);
       } finally {
         setLoading(false);
       }

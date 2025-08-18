@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
-const Messages = () => {
+const MyMessages = () => {
   const [conversations, setConversations] = useState([]);
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -36,11 +36,19 @@ const Messages = () => {
         const conversationMap = new Map();
 
         response.data.forEach((message) => {
-          const otherUserId =
-            message.senderId._id === user.id ? message.receiverId._id : message.senderId._id;
-          const otherUser =
-            message.senderId._id === user.id ? message.receiverId : message.senderId;
-          const bookingId = message.bookingId._id;
+          const senderId = typeof message.senderId === "object" ? message.senderId?._id : message.senderId;
+          const receiverId = typeof message.receiverId === "object" ? message.receiverId?._id : message.receiverId;
+          const bookingId = message.bookingId?._id;
+
+          if (!senderId || !receiverId || !bookingId) {
+            console.warn("Skipping malformed message:", message);
+            return; // skip bad data
+          }
+
+          const isCurrentUserSender = senderId === user._id;
+          const otherUserId = isCurrentUserSender ? receiverId : senderId;
+          const otherUser = isCurrentUserSender ? message.receiverId : message.senderId;
+
           const conversationKey = `${bookingId}-${otherUserId}`;
 
           if (!conversationMap.has(conversationKey)) {
@@ -60,7 +68,7 @@ const Messages = () => {
             conversation.lastMessage = message;
           }
 
-          if (!message.isRead && message.receiverId._id === user.id) {
+          if (!message.isRead && message.receiverId._id === user._id) {
             conversation.unreadCount++;
           }
         });
@@ -75,6 +83,7 @@ const Messages = () => {
           setSelectedConversation(conversationsArray[0]);
         }
       } catch (err) {
+        console.error('Failed to fetch conversations:', err);
         toast.error(err.response?.data?.message || 'Failed to fetch conversations.');
       } finally {
         setLoading(false);
@@ -82,7 +91,7 @@ const Messages = () => {
     };
 
     fetchConversations();
-  }, [token, user.id, selectedConversation]);
+  }, [token, user._id, selectedConversation]);
 
   // Fetch messages for selected conversation
   useEffect(() => {
@@ -93,17 +102,16 @@ const Messages = () => {
             `${API_URL}/message/booking/${selectedConversation.bookingId}`,
             { headers: { Authorization: `Bearer ${token}` } }
           );
-          
-          // Sort messages by time to ensure correct order
+
           const sortedMessages = (response.data.data || []).sort(
             (a, b) => new Date(a.time) - new Date(b.time)
           );
-          
+
           setMessages(sortedMessages);
 
           // Mark as read
           const unreadMessages = sortedMessages.filter(
-            (msg) => !msg.isRead && msg.receiverId._id === user.id
+            (msg) => !msg.isRead && msg.receiverId._id === user._id
           );
 
           for (const message of unreadMessages) {
@@ -124,7 +132,7 @@ const Messages = () => {
 
       fetchMessages();
     }
-  }, [selectedConversation, token, user.id]);
+  }, [selectedConversation, token, user._id]);
 
   // Send message
   const handleSendMessage = async (e) => {
@@ -158,16 +166,14 @@ const Messages = () => {
     }
   };
 
-  // Helper function to determine if message is sent by current user
+  // Helper: check if message is from current user
   const isMessageFromCurrentUser = (message) => {
-    return message.senderId._id === user._id || message.senderId === user._id;
+    const senderId = typeof message.senderId === 'object' ? message.senderId._id : message.senderId;
+    return senderId === user._id;
   };
- 
+
   const formatTime = (date) =>
-    new Date(date).toLocaleString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+    new Date(date).toLocaleString('en-US', { hour: '2-digit', minute: '2-digit' });
 
   const formatLastMessageTime = (date) => {
     const now = new Date();
@@ -175,29 +181,23 @@ const Messages = () => {
     const diffInHours = (now - messageDate) / (1000 * 60 * 60);
 
     if (diffInHours < 24) {
-      return messageDate.toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-      });
+      return messageDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
     } else {
-      return messageDate.toLocaleDateString('en-US', {
-        month: 'short',
-        day: '2-digit',
-      });
+      return messageDate.toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
     }
   };
 
   return (
     <div>
-      <h2 className="text-success mb-4">
-        <i className="bi bi-chat-dots me-2"></i>Messages
+      <h2 className="text-primary mb-4">
+        <i className="bi bi-chat-dots me-2"></i>My Messages
       </h2>
 
       <div className="row" style={{ height: '70vh' }}>
         {/* Conversations List */}
         <div className="col-md-4">
           <div className="card h-100 shadow">
-            <div className="card-header bg-success text-white">
+            <div className="card-header bg-primary text-white">
               <h5 className="mb-0">
                 <i className="bi bi-people me-2"></i>Conversations
               </h5>
@@ -205,7 +205,7 @@ const Messages = () => {
             <div className="card-body p-0" style={{ overflowY: 'auto' }}>
               {loading ? (
                 <div className="d-flex justify-content-center align-items-center h-100">
-                  <div className="spinner-border text-success" role="status">
+                  <div className="spinner-border text-primary" role="status">
                     <span className="visually-hidden">Loading...</span>
                   </div>
                 </div>
@@ -265,7 +265,7 @@ const Messages = () => {
                 <div className="card-header bg-light d-flex align-items-center">
                   <div className="d-flex align-items-center">
                     <div
-                      className="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3"
+                      className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3"
                       style={{ width: '40px', height: '40px' }}
                     >
                       <i className="bi bi-person"></i>
@@ -291,22 +291,18 @@ const Messages = () => {
                         <div
                           key={message._id}
                           className={`d-flex mb-3 ${
-                            isFromCurrentUser
-                              ? 'justify-content-end'
-                              : 'justify-content-start'
+                            isFromCurrentUser ? 'justify-content-end' : 'justify-content-start'
                           }`}
                         >
                           <div
                             className={`p-3 shadow-sm ${
-                              isFromCurrentUser
-                                ? 'bg-success text-white'
-                                : 'bg-white border'
+                              isFromCurrentUser ? 'bg-primary text-white' : 'bg-white border'
                             }`}
                             style={{
                               maxWidth: '70%',
-                              borderRadius: isFromCurrentUser 
-                                ? '20px 20px 5px 20px' 
-                                : '20px 20px 20px 5px'
+                              borderRadius: isFromCurrentUser
+                                ? '20px 20px 5px 20px'
+                                : '20px 20px 20px 5px',
                             }}
                           >
                             <div className="mb-1">{message.content}</div>
@@ -317,9 +313,7 @@ const Messages = () => {
                               style={{ fontSize: '0.75rem' }}
                             >
                               {formatTime(message.time)}
-                              {isFromCurrentUser && (
-                                <i className="bi bi-check2-all ms-1"></i>
-                              )}
+                              {isFromCurrentUser && <i className="bi bi-check2-all ms-1"></i>}
                             </div>
                           </div>
                         </div>
@@ -343,7 +337,7 @@ const Messages = () => {
                       />
                       <button
                         type="submit"
-                        className="btn btn-success"
+                        className="btn btn-primary"
                         disabled={sendingMessage || !newMessage.trim()}
                       >
                         {sendingMessage ? (
@@ -370,4 +364,4 @@ const Messages = () => {
   );
 };
 
-export default Messages;
+export default MyMessages;

@@ -36,6 +36,7 @@ import ManageReviews from './components/Worker/ManageReviews';
 import ManageSubscription from './components/Worker/ManageSubscription';
 import ManageBookings from './components/Worker/ManageBookings';
 import Messages from './components/Worker/Messages';
+import MyMessages from './components/User/MyMessages';
 import AccountSelection from './components/AccountSelection';
 
 function App() {
@@ -92,6 +93,7 @@ function App() {
             <Route path="services" element={<ServicesList />} />
             <Route path="services/details/:id" element={<ServiceDetails />} />
             <Route path="book/:id" element={<BookService />} />
+            <Route path="messages" element={<MyMessages />} />
             <Route path="bookings" element={<MyBookings />} />
             <Route path="settings" element={<Settings />} />
             

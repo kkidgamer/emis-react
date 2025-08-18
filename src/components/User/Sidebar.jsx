@@ -12,6 +12,7 @@ const Sidebar = () => {
   const navItems = [
     { path: '/user-dashboard', icon: 'bi-house-door', label: 'Dashboard' },
     { path: '/user-dashboard/services', icon: 'bi-list-task', label: 'Services' },
+    { path: '/user-dashboard/messages', icon: 'bi-chat-dots', label: 'Messages' },
     { path: '/user-dashboard/bookings', icon: 'bi-calendar-check', label: 'My Bookings' },
     { path: '/user-dashboard/settings', icon: 'bi-gear', label: 'Settings' },
   ];

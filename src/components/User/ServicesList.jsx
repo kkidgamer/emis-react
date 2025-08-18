@@ -81,7 +81,7 @@ const ServicesList = () => {
           <div key={service._id} className="col-md-4 col-sm-6 mb-4">
             <div className="card h-100 shadow-sm">
               <img
-                src={service.image || 'https://via.placeholder.com/300x200'}
+                src={service.image || 'https://unsplash.com/photos/a-person-using-one-of-tools-while-repairing-or-fixing-parts-of-pipes-e2twQyucgbI'}
                 className="card-img-top"
                 alt={service.title}
                 style={{ height: '200px', objectFit: 'cover' }}

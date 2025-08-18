@@ -6,9 +6,10 @@ import Sidebar from './Sidebar';
 
 const UserLayout = () => {
   return (
-    <div className="d-flex" style={{ minHeight: '100vh' }}>
+    <div className="d-flex" style={{ maxHeight: '100vh', position:"fixed" }}>
       <Sidebar />
-      <div className="flex-grow-1 p-4 bg-light">
+        {/* Ensure the content is scrollable */}
+        <div className="container-fluid flex-grow-1 p-4 bg-light" style={{ overflowY: 'auto', maxHeight: '100vh' }}>
         <Outlet />
       </div>
     </div>
