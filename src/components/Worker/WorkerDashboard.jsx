@@ -2,8 +2,16 @@ import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { toast } from 'react-toastify';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap-icons/font/bootstrap-icons.css';
+import AnimatedBackground from '../AnimatedBackground'; // Import the AnimatedBackground component
+import { Link } from 'react-router-dom';
+
+// Add Font Awesome CSS (already handled in AnimatedBackground, but ensure it's loaded)
+const fontAwesomeLink = document.createElement('link');
+fontAwesomeLink.rel = 'stylesheet';
+fontAwesomeLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css';
+if (!document.querySelector('link[href*="font-awesome"]')) {
+  document.head.appendChild(fontAwesomeLink);
+}
 
 const WorkerDashboard = () => {
   const [data, setData] = useState({
@@ -28,9 +36,21 @@ const WorkerDashboard = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         setData(response.data);
-        toast.success('Data loaded successfully!');
+        toast.success('Data loaded successfully!', {
+          style: {
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            color: 'white',
+            borderRadius: '16px',
+          },
+        });
       } catch (err) {
-        toast.error(err.response?.data?.message || 'Failed to fetch data.');
+        toast.error(err.response?.data?.message || 'Failed to fetch data.', {
+          style: {
+            background: 'linear-gradient(135deg, #ff6b6b 0%, #c0392b 100%)',
+            color: 'white',
+            borderRadius: '16px',
+          },
+        });
       } finally {
         setLoading(false);
       }
@@ -40,14 +60,22 @@ const WorkerDashboard = () => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'active': return 'success';
-      case 'pending': return 'warning';
-      case 'confirmed': return 'info';
-      case 'ongoing': return 'info';
-      case 'completed': return 'success';
-      case 'cancelled': return 'danger';
-      case 'inactive': return 'secondary';
-      default: return 'secondary';
+      case 'active':
+        return 'from-green-500 to-emerald-500';
+      case 'pending':
+        return 'from-yellow-500 to-amber-500';
+      case 'confirmed':
+        return 'from-blue-500 to-cyan-500';
+      case 'ongoing':
+        return 'from-blue-500 to-cyan-500';
+      case 'completed':
+        return 'from-green-500 to-emerald-500';
+      case 'cancelled':
+        return 'from-red-500 to-rose-500';
+      case 'inactive':
+        return 'from-gray-500 to-gray-600';
+      default:
+        return 'from-gray-500 to-gray-600';
     }
   };
 
@@ -70,88 +98,177 @@ const WorkerDashboard = () => {
   };
 
   return (
-    <div>
-      {loading && <div className="alert alert-info" role="alert">Loading...</div>}
-      <h2 className="text-success mb-4">
-        <i className="bi bi-house-door me-2"></i>Dashboard
+    <AnimatedBackground className="py-12 px-6">
+      {/* Loading Indicator */}
+      {loading && (
+        <div className="relative z-20 text-center mb-8">
+          <div className="inline-block bg-gradient-to-r from-blue-600/20 to-purple-600/20 p-4 rounded-2xl backdrop-blur-sm border border-white/10">
+            <i className="fas fa-spinner fa-spin text-2xl text-white mr-2"></i>
+            <span className="text-white text-lg">Loading...</span>
+          </div>
+        </div>
+      )}
+
+      {/* Header */}
+      <h2 className="relative z-20 text-4xl sm:text-5xl font-black mb-8 text-white">
+        <i className="fas fa-tachometer-alt text-blue-400 mr-2"></i>
+        Worker Dashboard
       </h2>
-      <div className="row">
-        <div className="col-md-4 mb-4">
-          <div className="card shadow">
-            <div className="card-header bg-success text-white">
-              <h5 className="mb-0">
-                <i className="bi bi-person me-2"></i>Profile
-              </h5>
+
+      {/* Main Content */}
+      <div className="relative z-20 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Profile Card */}
+          <div className="group relative p-6 rounded-3xl transition-all duration-500 hover:scale-105">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-purple-600/20 rounded-3xl group-hover:from-blue-600/30 group-hover:to-purple-600/30 transition-colors duration-300"></div>
+            <div className="absolute inset-0 backdrop-blur-sm border border-white/10 group-hover:border-white/20 rounded-3xl transition-all duration-300"></div>
+            <div className="relative z-10">
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-3">
+                  <i className="fas fa-user text-white text-xl"></i>
+                </div>
+                <h5 className="text-xl font-bold text-white">Profile</h5>
+              </div>
+              <div className="space-y-2 text-gray-300 text-base">
+                <p><strong>Name:</strong> {user.name}</p>
+                <p><strong>Email:</strong> {user.email}</p>
+                <p>
+                  <strong>Subscription Status:</strong>
+                  <span
+                    className={`inline-block px-2 py-1 rounded-lg text-sm font-semibold bg-gradient-to-r ${getStatusColor(
+                      user.subscriptionStatus
+                    )} text-white ml-2`}
+                  >
+                    {user.subscriptionStatus?.toUpperCase()}
+                  </span>
+                </p>
+                <Link
+                  to="/profile"
+                  className="inline-block group relative px-4 py-2 mt-4 font-semibold text-white rounded-full overflow-hidden transition-all duration-300 hover:scale-105 no-underline"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <span className="relative z-10">Edit Profile</span>
+                </Link>
+              </div>
             </div>
-            <div className="card-body">
-              <p><strong>Name:</strong> {user.name}</p>
-              <p><strong>Email:</strong> {user.email}</p>
-              <p>
-                <strong>Subscription Status:</strong>
-                <span className={`badge bg-${getStatusColor(user.subscriptionStatus)} ms-2`}>
-                  {user.subscriptionStatus?.toUpperCase()}
-                </span>
-              </p>
+          </div>
+
+          {/* Dashboard Cards */}
+          <div className="lg:col-span-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <DashboardCard
+                title="Services"
+                value={data.workerServices}
+                icon="fas fa-list"
+                color="from-blue-500 to-cyan-500"
+              />
+              <DashboardCard
+                title="Active Bookings"
+                value={data.activeBookings}
+                icon="fas fa-calendar"
+                color="from-cyan-500 to-blue-500"
+              />
+              <DashboardCard
+                title="Completed Bookings"
+                value={data.completedBookings}
+                icon="fas fa-calendar-check"
+                color="from-green-500 to-emerald-500"
+              />
+              <DashboardCard
+                title="Total Earnings"
+                value={`$${data.totalEarnings}`}
+                icon="fas fa-dollar-sign"
+                color="from-yellow-500 to-amber-500"
+              />
+              <DashboardCard
+                title="Average Rating"
+                value={data.averageRating.toFixed(1)}
+                icon="fas fa-star"
+                color="from-red-500 to-rose-500"
+              />
+              <DashboardCard
+                title="Unread Messages"
+                value={data.unreadMessages}
+                icon="fas fa-envelope"
+                color="from-purple-500 to-violet-500"
+              />
             </div>
           </div>
         </div>
-        <div className="col-md-8">
-          <div className="row">
-            <DashboardCard title="Services" value={data.workerServices} icon="bi-list-task" color="text-primary" />
-            <DashboardCard title="Active Bookings" value={data.activeBookings} icon="bi-calendar-event" color="text-info" />
-            <DashboardCard title="Completed Bookings" value={data.completedBookings} icon="bi-calendar-check" color="text-success" />
-            <DashboardCard title="Total Earnings" value={`$${data.totalEarnings}`} icon="bi-currency-dollar" color="text-warning" />
-            <DashboardCard title="Average Rating" value={data.averageRating.toFixed(1)} icon="bi-star" color="text-danger" />
-            <DashboardCard title="Unread Messages" value={data.unreadMessages} icon="bi-envelope" color="text-secondary" />
-          </div>
-        </div>
+
+        {/* Recent Bookings and Reviews */}
+        <RecentList
+          title="Recent Bookings"
+          items={data.recentBookings}
+          type="booking"
+          formatDate={formatDate}
+          getStatusColor={getStatusColor}
+        />
+        <RecentList
+          title="Recent Reviews"
+          items={data.recentReviews}
+          type="review"
+          formatDateTime={formatDateTime}
+          getStatusColor={getStatusColor}
+        />
       </div>
-      <RecentList title="Recent Bookings" items={data.recentBookings} type="booking" formatDate={formatDate} getStatusColor={getStatusColor} />
-      <RecentList title="Recent Reviews" items={data.recentReviews} type="review" formatDateTime={formatDateTime} />
-    </div>
+    </AnimatedBackground>
   );
 };
 
 const DashboardCard = ({ title, value, icon, color }) => (
-  <div className="col-md-6 mb-4">
-    <div className="card text-center shadow">
-      <div className="card-body">
-        <i className={`bi ${icon} display-4 ${color} mb-3`}></i>
-        <h5 className="card-title">{title}</h5>
-        <h2 className="card-text">{value || 0}</h2>
+  <div className="group relative p-6 rounded-3xl transition-all duration-500 hover:scale-105">
+    <div className={`absolute inset-0 bg-gradient-to-br ${color} opacity-10 group-hover:opacity-20 rounded-3xl transition-opacity duration-300`}></div>
+    <div className="absolute inset-0 bg-white/5 group-hover:bg-white/10 rounded-3xl backdrop-blur-sm border border-white/10 group-hover:border-white/20 transition-all duration-300"></div>
+    <div className="relative z-10 text-center">
+      <div className={`w-12 h-12 bg-gradient-to-br ${color} rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300`}>
+        <i className={`${icon} text-xl text-white`}></i>
       </div>
+      <h5 className="text-xl font-bold text-white mb-2">{title}</h5>
+      <h2 className="text-3xl font-black text-gray-200">{value || 0}</h2>
     </div>
   </div>
 );
 
 const RecentList = ({ title, items, type, formatDate, formatDateTime, getStatusColor }) => (
-  <div className="card shadow mt-4">
-    <div className="card-header bg-success text-white">
-      <h5 className="mb-0">
-        <i className={`bi ${type === 'booking' ? 'bi-calendar-check' : 'bi-star'} me-2`}></i>{title}
-      </h5>
-    </div>
-    <div className="card-body">
+  <div className="group relative mt-8 p-6 rounded-3xl transition-all duration-500">
+    <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-purple-600/20 rounded-3xl group-hover:from-blue-600/30 group-hover:to-purple-600/30 transition-colors duration-300"></div>
+    <div className="absolute inset-0 backdrop-blur-sm border border-white/10 group-hover:border-white/20 rounded-3xl transition-all duration-300"></div>
+    <div className="relative z-10">
+      <div className="flex items-center mb-6">
+        <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-3">
+          <i className={`fas ${type === 'booking' ? 'fa-calendar-check' : 'fa-star'} text-white text-lg`}></i>
+        </div>
+        <h5 className="text-2xl font-bold text-white">{title}</h5>
+      </div>
       {items?.length ? (
         type === 'booking' ? (
-          <div className="table-responsive">
-            <table className="table table-hover">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
               <thead>
-                <tr>
-                  <th>Client</th>
-                  <th>Service</th>
-                  <th>Date</th>
-                  <th>Status</th>
+                <tr className="text-gray-300">
+                  <th className="p-3">Client</th>
+                  <th className="p-3">Service</th>
+                  <th className="p-3">Date</th>
+                  <th className="p-3">Status</th>
                 </tr>
               </thead>
               <tbody>
                 {items.map((item) => (
-                  <tr key={item._id}>
-                    <td>{item.clientId?.name || 'Unknown'}</td>
-                    <td>{item.serviceId?.title || 'Unknown'}</td>
-                    <td>{formatDate(item.startTime)}</td>
-                    <td>
-                      <span className={`badge bg-${getStatusColor(item.status)}`}>
+                  <tr
+                    key={item._id}
+                    className="border-t border-white/10 hover:bg-white/5 transition-colors duration-300"
+                  >
+                    <td className="p-3 text-gray-200">{item.clientId?.name || 'Unknown'}</td>
+                    <td className="p-3 text-gray-200">{item.serviceId?.title || 'Unknown'}</td>
+                    <td className="p-3 text-gray-200">{formatDate(item.startTime)}</td>
+                    <td className="p-3">
+                      <span
+                        className={`inline-block px-2 py-1 rounded-lg text-sm font-semibold bg-gradient-to-r ${getStatusColor(
+                          item.status
+                        )} text-white`}
+                      >
                         {item.status.toUpperCase()}
                       </span>
                     </td>
@@ -161,27 +278,36 @@ const RecentList = ({ title, items, type, formatDate, formatDateTime, getStatusC
             </table>
           </div>
         ) : (
-          <div className="row">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {items.map((item) => (
-              <div key={item._id} className="col-md-6 mb-3">
-                <div className="card border-left-warning">
-                  <div className="card-body">
-                    <div className="d-flex justify-content-between align-items-start mb-2">
-                      <h6 className="card-title">{item.reviewerId?.name || 'Anonymous'}</h6>
-                      <span className="badge bg-warning text-dark">{item.rating}/5 ⭐</span>
-                    </div>
-                    <p className="card-text">{item.comment || 'No comment provided'}</p>
-                    <small className="text-muted">{formatDateTime(item.createdAt)}</small>
+              <div
+                key={item._id}
+                className="group relative p-4 rounded-2xl transition-all duration-300 hover:scale-105"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/20 to-amber-500/20 rounded-2xl group-hover:from-yellow-500/30 group-hover:to-amber-500/30 transition-colors duration-300"></div>
+                <div className="absolute inset-0 backdrop-blur-sm border border-white/10 group-hover:border-white/20 rounded-2xl transition-all duration-300"></div>
+                <div className="relative z-10">
+                  <div className="flex justify-between items-start mb-2">
+                    <h6 className="font-bold text-lg text-white">{item.reviewerId?.name || 'Anonymous'}</h6>
+                    <span
+                      className={`inline-block px-2 py-1 rounded-lg text-sm font-semibold bg-gradient-to-r from-yellow-500 to-amber-500 text-white`}
+                    >
+                      {item.rating}/5 <i className="fas fa-star ml-1"></i>
+                    </span>
                   </div>
+                  <p className="text-gray-300 text-base italic">{item.comment || 'No comment provided'}</p>
+                  <p className="text-gray-400 text-sm mt-2">{formatDateTime(item.createdAt)}</p>
                 </div>
               </div>
             ))}
           </div>
         )
       ) : (
-        <div className="text-center py-4">
-          <i className={`bi ${type === 'booking' ? 'bi-calendar-x' : 'bi-star'} display-1 text-muted`}></i>
-          <p className="text-muted mt-3">{`No ${type}s found.`}</p>
+        <div className="text-center py-8">
+          <i
+            className={`fas ${type === 'booking' ? 'fa-calendar-xmark' : 'fa-star'} text-5xl text-gray-400 mb-4`}
+          ></i>
+          <p className="text-gray-400 text-lg">{`No ${type}s found.`}</p>
         </div>
       )}
     </div>

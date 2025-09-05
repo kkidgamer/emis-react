@@ -1,9 +1,8 @@
+// Updated MyMessages.jsx
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { toast } from 'react-toastify';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap-icons/font/bootstrap-icons.css';
 
 const MyMessages = () => {
   const [conversations, setConversations] = useState([]);
@@ -84,7 +83,13 @@ const MyMessages = () => {
         }
       } catch (err) {
         console.error('Failed to fetch conversations:', err);
-        toast.error(err.response?.data?.message || 'Failed to fetch conversations.');
+        toast.error(err.response?.data?.message || 'Failed to fetch conversations.', {
+          style: {
+            background: 'linear-gradient(135deg, #ff6b6b 0%, #c0392b 100%)',
+            color: 'white',
+            borderRadius: '16px',
+          },
+        });
       } finally {
         setLoading(false);
       }
@@ -102,14 +107,13 @@ const MyMessages = () => {
             `${API_URL}/message/booking/${selectedConversation.bookingId}`,
             { headers: { Authorization: `Bearer ${token}` } }
           );
-
+          
           const sortedMessages = (response.data.data || []).sort(
             (a, b) => new Date(a.time) - new Date(b.time)
           );
-
+          
           setMessages(sortedMessages);
 
-          // Mark as read
           const unreadMessages = sortedMessages.filter(
             (msg) => !msg.isRead && msg.receiverId._id === user._id
           );
@@ -126,7 +130,13 @@ const MyMessages = () => {
             }
           }
         } catch (err) {
-          toast.error('Failed to fetch messages.');
+          toast.error('Failed to fetch messages.', {
+            style: {
+              background: 'linear-gradient(135deg, #ff6b6b 0%, #c0392b 100%)',
+              color: 'white',
+              borderRadius: '16px',
+            },
+          });
         }
       };
 
@@ -160,20 +170,27 @@ const MyMessages = () => {
         )
       );
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to send message.');
+      toast.error(err.response?.data?.message || 'Failed to send message.', {
+        style: {
+          background: 'linear-gradient(135deg, #ff6b6b 0%, #c0392b 100%)',
+          color: 'white',
+          borderRadius: '16px',
+        },
+      });
     } finally {
       setSendingMessage(false);
     }
   };
 
-  // Helper: check if message is from current user
   const isMessageFromCurrentUser = (message) => {
-    const senderId = typeof message.senderId === 'object' ? message.senderId._id : message.senderId;
-    return senderId === user._id;
+    return message.senderId._id === user._id || message.senderId === user._id;
   };
 
   const formatTime = (date) =>
-    new Date(date).toLocaleString('en-US', { hour: '2-digit', minute: '2-digit' });
+    new Date(date).toLocaleString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
 
   const formatLastMessageTime = (date) => {
     const now = new Date();
@@ -181,139 +198,136 @@ const MyMessages = () => {
     const diffInHours = (now - messageDate) / (1000 * 60 * 60);
 
     if (diffInHours < 24) {
-      return messageDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+      return messageDate.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+      });
     } else {
-      return messageDate.toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
+      return messageDate.toLocaleDateString('en-US', {
+        month: 'short',
+        day: '2-digit',
+      });
     }
   };
 
   return (
     <div>
-      <h2 className="text-primary mb-4">
-        <i className="bi bi-chat-dots me-2"></i>My Messages
+      {/* Header */}
+      <h2 className="text-4xl sm:text-5xl font-black mb-8 text-white">
+        <i className="fas fa-envelope text-blue-400 mr-2"></i>
+        My Messages
       </h2>
 
-      <div className="row" style={{ height: '70vh' }}>
+      {/* Main Layout */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6" style={{ height: '70vh' }}>
         {/* Conversations List */}
-        <div className="col-md-4">
-          <div className="card h-100 shadow">
-            <div className="card-header bg-primary text-white">
-              <h5 className="mb-0">
-                <i className="bi bi-people me-2"></i>Conversations
-              </h5>
-            </div>
-            <div className="card-body p-0" style={{ overflowY: 'auto' }}>
-              {loading ? (
-                <div className="d-flex justify-content-center align-items-center h-100">
-                  <div className="spinner-border text-primary" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                  </div>
+        <div className="md:col-span-4">
+          <div className="group relative h-full p-4 rounded-3xl transition-all duration-500 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-purple-600/20 rounded-3xl group-hover:from-blue-600/30 group-hover:to-purple-600/30 transition-colors duration-300"></div>
+            <div className="absolute inset-0 backdrop-blur-sm border border-white/10 group-hover:border-white/20 rounded-3xl transition-all duration-300"></div>
+            <div className="relative z-10 h-full flex flex-col">
+              <div className="flex items-center mb-4">
+                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-2">
+                  <i className="fas fa-users text-white text-base"></i>
                 </div>
-              ) : conversations.length > 0 ? (
-                <div className="list-group list-group-flush">
-                  {conversations.map((conversation) => (
+                <h5 className="text-xl font-bold text-white">Conversations</h5>
+              </div>
+              <div className="flex-grow overflow-y-auto">
+                {loading ? (
+                  <div className="text-center py-4">
+                    <i className="fas fa-spinner fa-spin text-2xl text-white"></i>
+                  </div>
+                ) : conversations.length > 0 ? (
+                  conversations.map((conversation) => (
                     <button
                       key={conversation.id}
-                      className={`list-group-item list-group-item-action d-flex justify-content-between align-items-start ${
-                        selectedConversation?.id === conversation.id ? 'active' : ''
+                      className={`w-full text-left p-3 rounded-xl mb-2 transition-all duration-300 hover:bg-white/10 ${
+                        selectedConversation?.id === conversation.id ? 'bg-white/20' : ''
                       }`}
                       onClick={() => setSelectedConversation(conversation)}
                     >
-                      <div className="ms-2 me-auto text-start">
-                        <div className="fw-bold">{conversation.otherUser.name}</div>
-                        <div className="text-muted small">
-                          {conversation.booking.serviceId?.title || 'Service'}
-                        </div>
-                        <div
-                          className="small text-truncate text-muted"
-                          style={{ maxWidth: '200px' }}
-                        >
-                          {conversation.lastMessage.content}
-                        </div>
-                      </div>
-                      <div className="text-end">
-                        <small className="text-muted">
-                          {formatLastMessageTime(conversation.lastMessage.time)}
-                        </small>
-                        {conversation.unreadCount > 0 && (
-                          <div>
-                            <span className="badge bg-danger rounded-pill mt-1">
-                              {conversation.unreadCount}
-                            </span>
+                      <div className="flex justify-between items-start">
+                        <div className="me-auto text-start">
+                          <div className="font-bold text-white">{conversation.otherUser.name}</div>
+                          <div className="text-gray-400 small">
+                            {conversation.booking.serviceId?.title || 'Service'}
                           </div>
-                        )}
+                          <div className="small text-gray-300 truncate" style={{ maxWidth: '200px' }}>
+                            {conversation.lastMessage.content}
+                          </div>
+                        </div>
+                        <div className="text-end">
+                          <small className="text-gray-400">
+                            {formatLastMessageTime(conversation.lastMessage.time)}
+                          </small>
+                          {conversation.unreadCount > 0 && (
+                            <div>
+                              <span className="badge inline-block px-2 py-1 rounded-full text-sm font-semibold bg-gradient-to-r from-red-500 to-rose-500 text-white mt-1">
+                                {conversation.unreadCount}
+                              </span>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </button>
-                  ))}
-                </div>
-              ) : (
-                <div className="d-flex flex-column justify-content-center align-items-center h-100 text-muted">
-                  <i className="bi bi-chat-x display-1"></i>
-                  <p className="mt-3">No conversations found</p>
-                </div>
-              )}
+                  ))
+                ) : (
+                  <div className="flex flex-column justify-content-center align-items-center h-full text-gray-400">
+                    <i className="fas fa-envelope-open-text text-5xl mb-4"></i>
+                    <p className="text-lg">No conversations found</p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
 
         {/* Messages Area */}
-        <div className="col-md-8">
-          <div className="card h-100 shadow">
-            {selectedConversation ? (
-              <>
-                {/* Chat Header */}
-                <div className="card-header bg-light d-flex align-items-center">
-                  <div className="d-flex align-items-center">
-                    <div
-                      className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3"
-                      style={{ width: '40px', height: '40px' }}
-                    >
-                      <i className="bi bi-person"></i>
-                    </div>
-                    <div>
-                      <h6 className="mb-0">{selectedConversation.otherUser.name}</h6>
-                      <small className="text-muted">
-                        {selectedConversation.booking.serviceId?.title || 'Service'}
-                      </small>
+        <div className="md:col-span-8">
+          <div className="group relative h-full rounded-3xl transition-all duration-500 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-purple-600/20 rounded-3xl group-hover:from-blue-600/30 group-hover:to-purple-600/30 transition-colors duration-300"></div>
+            <div className="absolute inset-0 backdrop-blur-sm border border-white/10 group-hover:border-white/20 rounded-3xl transition-all duration-300"></div>
+            <div className="relative z-10 h-full flex flex-col">
+              {selectedConversation ? (
+                <>
+                  {/* Chat Header */}
+                  <div className="p-4 border-b border-white/10">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mr-3">
+                        <i className="fas fa-user text-white text-lg"></i>
+                      </div>
+                      <div>
+                        <h6 className="font-bold text-white mb-0">{selectedConversation.otherUser.name}</h6>
+                        <small className="text-gray-400">
+                          {selectedConversation.booking.serviceId?.title || 'Service'}
+                        </small>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Messages */}
-                <div
-                  className="card-body d-flex flex-column"
-                  style={{ overflowY: 'auto', background: '#f5f5f5' }}
-                >
-                  <div className="flex-grow-1">
+                  {/* Messages */}
+                  <div className="flex-grow p-4 overflow-y-auto" style={{ background: 'rgba(255,255,255,0.02)' }}>
                     {messages.map((message) => {
                       const isFromCurrentUser = isMessageFromCurrentUser(message);
                       return (
                         <div
                           key={message._id}
-                          className={`d-flex mb-3 ${
-                            isFromCurrentUser ? 'justify-content-end' : 'justify-content-start'
-                          }`}
+                          className={`flex mb-4 ${isFromCurrentUser ? 'justify-end' : 'justify-start'}`}
                         >
                           <div
-                            className={`p-3 shadow-sm ${
-                              isFromCurrentUser ? 'bg-primary text-white' : 'bg-white border'
+                            className={`p-3 rounded-2xl max-w-[70%] ${
+                              isFromCurrentUser
+                                ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white'
+                                : 'bg-white/5 border border-white/10 text-gray-200'
                             }`}
                             style={{
-                              maxWidth: '70%',
-                              borderRadius: isFromCurrentUser
-                                ? '20px 20px 5px 20px'
-                                : '20px 20px 20px 5px',
+                              borderRadius: isFromCurrentUser ? '20px 20px 5px 20px' : '20px 20px 20px 5px',
                             }}
                           >
                             <div className="mb-1">{message.content}</div>
-                            <div
-                              className={`small text-end ${
-                                isFromCurrentUser ? 'text-white-50' : 'text-muted'
-                              }`}
-                              style={{ fontSize: '0.75rem' }}
-                            >
+                            <div className={`small text-end text-xs ${isFromCurrentUser ? 'text-white/70' : 'text-gray-400'}`}>
                               {formatTime(message.time)}
-                              {isFromCurrentUser && <i className="bi bi-check2-all ms-1"></i>}
+                              {isFromCurrentUser && <i className="fas fa-check-double ml-1"></i>}
                             </div>
                           </div>
                         </div>
@@ -321,42 +335,42 @@ const MyMessages = () => {
                     })}
                     <div ref={messagesEndRef} />
                   </div>
-                </div>
 
-                {/* Message Input */}
-                <div className="card-footer bg-light">
-                  <form onSubmit={handleSendMessage}>
-                    <div className="input-group">
-                      <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Type your message..."
-                        value={newMessage}
-                        onChange={(e) => setNewMessage(e.target.value)}
-                        disabled={sendingMessage}
-                      />
-                      <button
-                        type="submit"
-                        className="btn btn-primary"
-                        disabled={sendingMessage || !newMessage.trim()}
-                      >
-                        {sendingMessage ? (
-                          <span className="spinner-border spinner-border-sm" role="status"></span>
-                        ) : (
-                          <i className="bi bi-send"></i>
-                        )}
-                      </button>
-                    </div>
-                  </form>
+                  {/* Message Input */}
+                  <div className="p-4 border-t border-white/10">
+                    <form onSubmit={handleSendMessage}>
+                      <div className="flex">
+                        <input
+                          type="text"
+                          className="flex-grow bg-white/5 border border-white/10 rounded-l-lg p-3 text-white placeholder-gray-400 focus:border-blue-400 focus:outline-none transition-colors duration-300"
+                          placeholder="Type your message..."
+                          value={newMessage}
+                          onChange={(e) => setNewMessage(e.target.value)}
+                          disabled={sendingMessage}
+                        />
+                        <button
+                          type="submit"
+                          className="group relative px-6 py-3 font-semibold text-white rounded-r-lg overflow-hidden transition-all duration-300 hover:scale-105 disabled:opacity-50"
+                          disabled={sendingMessage || !newMessage.trim()}
+                        >
+                          <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600"></div>
+                          <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                          <span className="relative z-10">
+                            {sendingMessage ? <i className="fas fa-spinner fa-spin"></i> : <i className="fas fa-paper-plane"></i>}
+                          </span>
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </>
+              ) : (
+                <div className="flex flex-column justify-content-center align-items-center h-full text-gray-400">
+                  <i className="fas fa-comment-dots text-5xl mb-4"></i>
+                  <h5 className="text-2xl font-bold mb-2">Select a conversation</h5>
+                  <p className="text-lg">Choose a conversation from the list to start messaging</p>
                 </div>
-              </>
-            ) : (
-              <div className="card-body d-flex flex-column justify-content-center align-items-center text-muted">
-                <i className="bi bi-chat-square-text display-1"></i>
-                <h5 className="mt-3">Select a conversation</h5>
-                <p>Choose a conversation from the list to start messaging</p>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>

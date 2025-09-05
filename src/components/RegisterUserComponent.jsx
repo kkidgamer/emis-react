@@ -2,14 +2,22 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import '../css/register.css'
+import AnimatedBackground from "./AnimatedBackground";
 
 const RegisterUserComponent = () => {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // State for password visibility
+  const [showPassword, setShowPassword] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    password: '',
+    
+  });
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   // User interaction
   const [error, setError] = useState("");
@@ -22,7 +30,7 @@ const RegisterUserComponent = () => {
     setError("");
     setLoading("Registering user account");
     try {
-      const data = { name, email, phone, address, password, role: "client" };
+      const data = { formData, role: "client" };
       const res = await axios.post("https://emis-sh54.onrender.com/api/client", data);
       if (res.data.client) {
         setLoading("");
@@ -45,128 +53,96 @@ const RegisterUserComponent = () => {
   };
 
   return (
-    <div className="container mt-5" style={{ maxWidth: "500px" }}>
-      <form onSubmit={handleSubmit} className="card shadow bg-light p-4 rounded-3">
-        <h1 className="text-center text-success mb-3">EMIS</h1>
-        <h2 className="text-center mb-4 text-success">Register</h2>
-
-        {/* Alerts */}
-        {error && (
-          <div className="alert alert-danger" role="alert">
-            {error}
+    <AnimatedBackground>
+      <div className="relative z-20 flex items-center justify-center px-4 sm:px-6 min-h-screen py-20">
+        <div className="relative bg-white/10 backdrop-blur-xl p-8 max-w-md w-full rounded-3xl border border-white/20 shadow-2xl">
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center space-x-3 mb-4">
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg blur opacity-75"></div>
+                <div className="relative bg-gradient-to-r from-blue-500 to-purple-600 p-2 rounded-lg">
+                  <i className="fas fa-home text-2xl text-white"></i>
+                </div>
+              </div>
+              <span className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent">
+                EMIS
+              </span>
+            </div>
+            <h2 className="text-3xl font-bold text-white mb-2">Register Client</h2>
+            <p className="text-gray-200">Create your client account</p>
           </div>
-        )}
-        {success && (
-          <div className="alert alert-success" role="alert">
-            {success}
-          </div>
-        )}
-        {loading && (
-          <div className="alert alert-info" role="alert">
-            {loading}
-          </div>
-        )}
 
-        {/* Inputs with Icons */}
-        <div className="input-group mb-3">
-          <span className="input-group-text bg-success text-white" id="name-icon">
-            <i className="bi bi-person" aria-hidden="true"></i>
-          </span>
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Enter your name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            aria-label="Name"
-            aria-describedby="name-icon"
-          />
-        </div>
-        <div className="input-group mb-3">
-          <span className="input-group-text bg-success text-white" id="email-icon">
-            <i className="bi bi-envelope" aria-hidden="true"></i>
-          </span>
-          <input
-            type="email"
-            className="form-control"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            aria-label="Email"
-            aria-describedby="email-icon"
-          />
-        </div>
-        <div className="input-group mb-3">
-          <span className="input-group-text bg-success text-white" id="phone-icon">
-            <i className="bi bi-telephone" aria-hidden="true"></i>
-          </span>
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Enter your phone number"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            required
-            aria-label="Phone number"
-            aria-describedby="phone-icon"
-          />
-        </div>
-        <div className="input-group mb-3">
-          <span className="input-group-text bg-success text-white" id="address-icon">
-            <i className="bi bi-house" aria-hidden="true"></i>
-          </span>
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Enter your address"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            required
-            aria-label="Address"
-            aria-describedby="address-icon"
-          />
-        </div>
-        <div className="input-group mb-3">
-          <span className="input-group-text bg-success text-white" id="password-icon">
-            <i className="bi bi-lock" aria-hidden="true"></i>
-          </span>
-          <input
-            type={showPassword ? "text" : "password"}
-            className="form-control"
-            placeholder="Enter your password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            aria-label="Password"
-            aria-describedby="password-icon"
-          />
-          <button
-            type="button"
-            className="btn btn-outline-success password-toggle"
-            onClick={togglePasswordVisibility}
-            aria-label={showPassword ? "Hide password" : "Show password"}
-          >
-            <i className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"}`}></i>
-          </button>
-        </div>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {[
+              { name: 'name', icon: 'fas fa-user', placeholder: 'Enter your name', type: 'text' },
+              { name: 'email', icon: 'fas fa-envelope', placeholder: 'Enter your email', type: 'email' },
+              { name: 'phone', icon: 'fas fa-phone', placeholder: 'Enter your phone number', type: 'tel' },
+              { name: 'address', icon: 'fas fa-home', placeholder: 'Enter your address', type: 'text' }
+            ].map((field) => (
+              <div key={field.name} className="relative">
+                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10">
+                  <i className={`${field.icon} text-gray-300`}></i>
+                </div>
+                <input
+                  type={field.type}
+                  name={field.name}
+                  className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white/10 border border-white/20 
+                            focus:outline-none focus:border-green-400 focus:ring-2 focus:ring-green-400/50 
+                            transition-all duration-300 placeholder-gray-300 text-white"
+                  placeholder={field.placeholder}
+                  value={formData[field.name]}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            ))}
 
-        <div className="d-grid mb-3">
-          <button type="submit" className="btn btn-success btn-lg">
-            Register
-          </button>
+            <div className="relative">
+              <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10">
+                <i className="fas fa-lock text-gray-300"></i>
+              </div>
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                className="w-full pl-12 pr-12 py-4 rounded-2xl bg-white/10 border border-white/20 
+                          focus:outline-none focus:border-green-400 focus:ring-2 focus:ring-green-400/50 
+                          transition-all duration-300 placeholder-gray-300 text-white"
+                placeholder="Enter your password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+              />
+              <button
+                type="button"
+                onClick={togglePasswordVisibility}
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-300 hover:text-white transition-colors duration-300"
+              >
+                <i className={`fas ${showPassword ? "fa-eye-slash" : "fa-eye"}`}></i>
+              </button>
+            </div>
+
+            <button 
+              type="submit" 
+              className="w-full group relative py-4 font-bold text-white rounded-2xl overflow-hidden 
+                        transform transition-all duration-300 hover:scale-105 mt-6"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-green-600 via-emerald-600 to-green-600"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 via-green-500 to-teal-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <span className="relative z-10 text-lg">Register</span>
+            </button>
+
+            <div className="text-center pt-4">
+              <p className="text-gray-200">
+                Already have an account?{' '}
+                <Link to="/login/user" className="text-green-400 hover:text-green-300 transition-colors duration-300 font-semibold">
+                  Login
+                </Link>
+              </p>
+            </div>
+          </form>
         </div>
-        <div className="text-center">
-          <p>
-            Already have an account?{" "}
-            <Link to="/login/user" className="text-decoration-none text-success fw-bold">
-              Login
-            </Link>
-          </p>
-        </div>
-      </form>
-    </div>
+      </div>
+    </AnimatedBackground>
   );
 };
 

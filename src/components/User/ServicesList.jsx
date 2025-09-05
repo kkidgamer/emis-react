@@ -1,3 +1,4 @@
+// Updated ServicesList.jsx
 import React, { useEffect, useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
@@ -20,12 +21,24 @@ const ServicesList = () => {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         });
         if (res.data.length === 0) {
-          toast.info('No services available at the moment.');
+          toast.info('No services available at the moment.', {
+            style: {
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: 'white',
+              borderRadius: '16px',
+            },
+          });
         }
         setServices(res.data);
         setFilteredServices(res.data);
       } catch (err) {
-        toast.error(err.response?.data?.message || 'Failed to fetch services.');
+        toast.error(err.response?.data?.message || 'Failed to fetch services.', {
+          style: {
+            background: 'linear-gradient(135deg, #ff6b6b 0%, #c0392b 100%)',
+            color: 'white',
+            borderRadius: '16px',
+          },
+        });
       } finally {
         setLoading(false);
       }
@@ -46,7 +59,13 @@ const ServicesList = () => {
       );
       setFilteredServices(filtered);
       setCurrentPage(1);
-      toast.success(`${filtered.length} service(s) found`);
+      toast.success(`${filtered.length} service(s) found`, {
+        style: {
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          color: 'white',
+          borderRadius: '16px',
+        },
+      });
     } else {
       setFilteredServices(services);
     }
@@ -58,50 +77,61 @@ const ServicesList = () => {
   const currentServices = filteredServices.slice(indexOfFirst, indexOfLast);
   const totalPages = Math.ceil(filteredServices.length / servicesPerPage);
 
-  if (loading) return <div className="text-center mt-5">Loading services...</div>;
-
   return (
-    <div className="container my-4">
-      <h2 className="text-success mb-4">Available Services</h2>
+    <div>
+      {/* Loading Indicator */}
+      {loading && (
+        <div className="text-center mb-8">
+          <div className="inline-block bg-gradient-to-r from-blue-600/20 to-purple-600/20 p-4 rounded-2xl backdrop-blur-sm border border-white/10">
+            <i className="fas fa-spinner fa-spin text-2xl text-white mr-2"></i>
+            <span className="text-white text-lg">Loading...</span>
+          </div>
+        </div>
+      )}
+
+      {/* Header */}
+      <h2 className="text-4xl sm:text-5xl font-black mb-8 text-white">
+        <i className="fas fa-list text-blue-400 mr-2"></i>
+        Available Services
+      </h2>
 
       {/* Search Bar */}
-      <div className="mb-4">
+      <div className="mb-6">
         <input
           type="text"
           placeholder="Search services..."
-          className="form-control"
+          className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white placeholder-gray-400 focus:border-blue-400 focus:outline-none transition-colors duration-300"
           value={search}
           onChange={handleSearch}
         />
       </div>
 
       {/* Services Grid */}
-      <div className="row">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {currentServices.map((service) => (
-          <div key={service._id} className="col-md-4 col-sm-6 mb-4">
-            <div className="card h-100 shadow-sm">
+          <div key={service._id} className="group relative rounded-3xl overflow-hidden transition-all duration-500 hover:scale-105">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-purple-600/20 group-hover:from-blue-600/30 group-hover:to-purple-600/30 transition-colors duration-300"></div>
+            <div className="absolute inset-0 backdrop-blur-sm border border-white/10 group-hover:border-white/20 transition-all duration-300"></div>
+            <div className="relative z-10 p-4">
               <img
                 src={service.image || 'https://unsplash.com/photos/a-person-using-one-of-tools-while-repairing-or-fixing-parts-of-pipes-e2twQyucgbI'}
-                className="card-img-top"
+                className="w-full h-48 object-cover rounded-2xl mb-4"
                 alt={service.title}
-                style={{ height: '200px', objectFit: 'cover' }}
               />
-              <div className="card-body d-flex flex-column">
-                <h5 className="card-title">{service.title}</h5>
-                <p className="card-text text-muted">{service.description?.slice(0, 60)}...</p>
-                <p className="fw-bold text-success">
-                  {service.price ? `KES ${service.price}` : 'Price on request'}
-                </p>
-                <small className="text-muted">By {service.workerId?.name || 'Unknown Worker'}</small>
-                <div className="mt-auto">
-                  <Link
-                    to={`/user-dashboard/services/details/${service._id}`}
-                    className="btn btn-success w-100 mt-3"
-                  >
-                    View Details
-                  </Link>
-                </div>
-              </div>
+              <h5 className="text-xl font-bold text-white mb-2">{service.title}</h5>
+              <p className="text-gray-300 text-sm mb-2">{service.description?.slice(0, 60)}...</p>
+              <p className="text-green-400 font-bold mb-2">
+                {service.price ? `KES ${service.price}` : 'Price on request'}
+              </p>
+              <small className="text-gray-400">By {service.workerId?.name || 'Unknown Worker'}</small>
+              <Link
+                to={`/user-dashboard/services/details/${service._id}`}
+                className="group/btn relative block w-full px-4 py-2 mt-4 font-semibold text-white rounded-full overflow-hidden transition-all duration-300 hover:scale-105 no-underline"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
+                <span className="relative z-10">View Details</span>
+              </Link>
             </div>
           </div>
         ))}
@@ -109,12 +139,21 @@ const ServicesList = () => {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <nav>
-          <ul className="pagination justify-content-center">
+        <nav className="flex justify-center mt-8">
+          <ul className="flex space-x-2">
             {[...Array(totalPages)].map((_, i) => (
-              <li key={i} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
-                <button className="page-link" onClick={() => setCurrentPage(i + 1)}>
-                  {i + 1}
+              <li key={i}>
+                <button
+                  className={`group relative px-4 py-2 font-semibold rounded-full overflow-hidden transition-all duration-300 hover:scale-110 ${
+                    currentPage === i + 1 ? 'text-white' : 'text-gray-400'
+                  }`}
+                  onClick={() => setCurrentPage(i + 1)}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-50 group-hover:opacity-100"></div>
+                  {currentPage === i + 1 && (
+                    <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-100"></div>
+                  )}
+                  <span className="relative z-10">{i + 1}</span>
                 </button>
               </li>
             ))}
