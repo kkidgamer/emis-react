@@ -1,5 +1,5 @@
 // Updated Messages.jsx
-import React, { useState, useEffect, useContext, useRef } from 'react';
+import React, { useState, useEffect, useContext, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { toast } from 'react-toastify';
@@ -9,7 +9,7 @@ const Messages = () => {
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // Start with true
   const [sendingMessage, setSendingMessage] = useState(false);
   const messagesEndRef = useRef(null);
   const { token, user } = useContext(AuthContext);
@@ -23,99 +23,115 @@ const Messages = () => {
     scrollToBottom();
   }, [messages]);
 
-  // Fetch conversations
-  useEffect(() => {
-    const fetchConversations = async () => {
-      setLoading(true);
-      try {
-        const response = await axios.get(`${API_URL}/message`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+  // Fetch all conversations
+  const fetchConversations = useCallback(async (isInitialLoad = false) => {
+    if (isInitialLoad) setLoading(true);
+    try {
+      const response = await axios.get(`${API_URL}/message`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-        const conversationMap = new Map();
+      const conversationMap = new Map();
 
-        response.data.forEach((message) => {
-          const otherUserId =
-            message.senderId._id === user.id ? message.receiverId._id : message.senderId._id;
-          const otherUser =
-            message.senderId._id === user.id ? message.receiverId : message.senderId;
-          const bookingId = message.bookingId._id;
-          const conversationKey = `${bookingId}-${otherUserId}`;
+      response.data.forEach((message) => {
+        const otherUserId =
+          message.senderId._id === user.id ? message.receiverId._id : message.senderId._id;
+        const otherUser =
+          message.senderId._id === user.id ? message.receiverId : message.senderId;
+        const bookingId = message.bookingId._id;
+        const conversationKey = `${bookingId}-${otherUserId}`;
 
-          if (!conversationMap.has(conversationKey)) {
-            conversationMap.set(conversationKey, {
-              id: conversationKey,
-              bookingId,
-              booking: message.bookingId,
-              otherUser,
-              lastMessage: message,
-              unreadCount: 0,
-            });
-          }
-
-          const conversation = conversationMap.get(conversationKey);
-
-          if (new Date(message.time) > new Date(conversation.lastMessage.time)) {
-            conversation.lastMessage = message;
-          }
-
-          if (!message.isRead && message.receiverId._id === user.id) {
-            conversation.unreadCount++;
-          }
-        });
-
-        const conversationsArray = Array.from(conversationMap.values()).sort(
-          (a, b) => new Date(b.lastMessage.time) - new Date(a.lastMessage.time)
-        );
-
-        setConversations(conversationsArray);
-
-        if (conversationsArray.length > 0 && !selectedConversation) {
-          setSelectedConversation(conversationsArray[0]);
-        }
-      } catch (err) {
-        toast.error(err.response?.data?.message || 'Failed to fetch conversations.', {
-          style: {
-            background: 'linear-gradient(135deg, #ff6b6b 0%, #c0392b 100%)',
-            color: 'white',
-            borderRadius: '16px',
-          },
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchConversations();
-  }, [token, user.id, selectedConversation]);
-
-  // Fetch messages for selected conversation
-  useEffect(() => {
-    if (selectedConversation) {
-      const fetchMessages = async () => {
-        try {
-          const response = await axios.get(
-            `${API_URL}/message/booking/${selectedConversation.bookingId}`,
-            { headers: { Authorization: `Bearer ${token}` } }
-          );
-          
-          const sortedMessages = (response.data.data || []).sort(
-            (a, b) => new Date(a.time) - new Date(b.time)
-          );
-          setMessages(sortedMessages);
-        } catch (err) {
-          toast.error('Failed to fetch messages.', {
-            style: {
-              background: 'linear-gradient(135deg, #ff6b6b 0%, #c0392b 100%)',
-              color: 'white',
-              borderRadius: '16px',
-            },
+        if (!conversationMap.has(conversationKey)) {
+          conversationMap.set(conversationKey, {
+            id: conversationKey,
+            bookingId,
+            booking: message.bookingId,
+            otherUser,
+            lastMessage: message,
+            unreadCount: 0,
           });
         }
-      };
-      fetchMessages();
+
+        const conversation = conversationMap.get(conversationKey);
+        if (new Date(message.time) > new Date(conversation.lastMessage.time)) {
+          conversation.lastMessage = message;
+        }
+        if (!message.isRead && message.receiverId._id === user.id) {
+          conversation.unreadCount++;
+        }
+      });
+
+      const conversationsArray = Array.from(conversationMap.values()).sort(
+        (a, b) => new Date(b.lastMessage.time) - new Date(a.lastMessage.time)
+      );
+
+      setConversations(conversationsArray);
+
+      // If it's the first load, select the first conversation automatically
+      if (isInitialLoad && conversationsArray.length > 0) {
+        setSelectedConversation(conversationsArray[0]);
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to fetch conversations.', {
+        style: { background: 'linear-gradient(135deg, #ff6b6b 0%, #c0392b 100%)', color: 'white', borderRadius: '16px' }
+      });
+    } finally {
+      if (isInitialLoad) setLoading(false);
     }
-  }, [selectedConversation, token]);
+  }, [token, user.id]);
+
+  // Fetch messages for the selected conversation
+  const fetchMessages = useCallback(async (conversation) => {
+    if (!conversation) return;
+    try {
+      const response = await axios.get(
+        `${API_URL}/message/booking/${conversation.bookingId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      const sortedMessages = (response.data.data || []).sort(
+        (a, b) => new Date(a.time) - new Date(b.time)
+      );
+      setMessages(sortedMessages);
+
+      // Mark conversation as read on the client-side
+      setConversations(prevConvos =>
+        prevConvos.map(c =>
+          c.id === conversation.id ? { ...c, unreadCount: 0 } : c
+        )
+      );
+    } catch (err) {
+      toast.error('Failed to fetch messages.', {
+        style: { background: 'linear-gradient(135deg, #ff6b6b 0%, #c0392b 100%)', color: 'white', borderRadius: '16px' }
+      });
+    }
+  }, [token]);
+
+  // Initial fetch of conversations
+  useEffect(() => {
+    if (token && user.id) {
+      fetchConversations(true);
+    }
+  }, [token, user.id, fetchConversations]);
+
+  // Fetch messages when a conversation is selected
+  useEffect(() => {
+    if (selectedConversation) {
+      fetchMessages(selectedConversation);
+    }
+  }, [selectedConversation, fetchMessages]);
+
+  // Polling for real-time updates every 5 seconds
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      fetchConversations(); // Fetches all conversations to check for new messages/convos
+      if (selectedConversation) {
+        fetchMessages(selectedConversation); // Re-fetches messages for the active chat
+      }
+    }, 5000); // Poll every 5 seconds
+
+    return () => clearInterval(intervalId); // Cleanup on component unmount
+  }, [selectedConversation, fetchConversations, fetchMessages]);
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
@@ -135,23 +151,21 @@ const Messages = () => {
 
       setMessages((prev) => [...prev, response.data]);
       setNewMessage('');
-      toast.success('Message sent!', {
-        style: {
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          color: 'white',
-          borderRadius: '16px',
-        },
-      });
+      
+      // Also update the last message in the conversation list
+      setConversations(prevConvos =>
+        prevConvos.map(c =>
+          c.id === selectedConversation.id ? { ...c, lastMessage: response.data } : c
+        ).sort((a, b) => new Date(b.lastMessage.time) - new Date(a.lastMessage.time))
+      );
+      
     } catch (err) {
       toast.error('Failed to send message.', {
-        style: {
-          background: 'linear-gradient(135deg, #ff6b6b 0%, #c0392b 100%)',
-          color: 'white',
-          borderRadius: '16px',
-        },
+        style: { background: 'linear-gradient(135deg, #ff6b6b 0%, #c0392b 100%)', color: 'white', borderRadius: '16px' }
       });
     } finally {
       setSendingMessage(false);
+      scrollToBottom();
     }
   };
 
@@ -173,9 +187,10 @@ const Messages = () => {
     );
   }
 
+  // --- JSX remains the same, only logic was changed ---
   return (
     <div className="flex flex-col md:flex-row h-full p-2 sm:p-4 space-y-4 md:space-y-0 md:space-x-4">
-      {/* Conversations List - Full width on mobile, sidebar on desktop */}
+      {/* Conversations List */}
       <div className="md:w-1/3 bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 overflow-y-auto max-h-[60vh] md:max-h-full">
         <div className="p-3 sm:p-4 border-b border-white/10">
           <h3 className="text-lg sm:text-xl font-bold text-white flex items-center">
@@ -191,17 +206,17 @@ const Messages = () => {
               onClick={() => setSelectedConversation(conv)}
             >
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-3 overflow-hidden">
                   <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
                     <i className="fas fa-user text-white text-sm sm:text-base"></i>
                   </div>
-                  <div>
+                  <div className="overflow-hidden">
                     <p className="font-semibold text-white text-sm sm:text-base truncate">{conv.otherUser.name}</p>
-                    <p className="text-gray-400 text-xs truncate max-w-[150px] sm:max-w-none">{conv.lastMessage.content}</p>
+                    <p className="text-gray-400 text-xs truncate">{conv.lastMessage.content}</p>
                   </div>
                 </div>
                 {conv.unreadCount > 0 && (
-                  <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full min-w-[20px] h-[20px] flex items-center justify-center">
+                  <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full min-w-[20px] h-[20px] flex items-center justify-center flex-shrink-0 ml-2">
                     {conv.unreadCount > 9 ? '9+' : conv.unreadCount}
                   </span>
                 )}
