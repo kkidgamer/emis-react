@@ -1,3 +1,4 @@
+// Updated WorkerLayout.jsx
 import React from 'react';
 import WorkerSidebar from './WorkerSidebar';
 import AnimatedBackground from '../AnimatedBackground'; // Adjust path as needed
@@ -13,17 +14,19 @@ if (!document.querySelector('link[href*="font-awesome"]')) {
 
 const WorkerLayout = () => {
   return (
-    <div className="flex min-h-screen bg-black">
-      {/* Sidebar - Fixed on mobile, relative on desktop */}
+    <div className="flex h-screen bg-black overflow-hidden">
+      {/* Sidebar */}
       <WorkerSidebar />
       
       {/* Main Content */}
-      <div className="flex-1 relative z-10 md:ml-0 overflow-y-auto">
-        <AnimatedBackground className="min-h-screen py-4 sm:py-6 px-2 sm:px-4 md:px-6">
-          <div className="relative z-20 max-w-7xl mx-auto w-full">
-            <Outlet />
-          </div>
-        </AnimatedBackground>
+      <div className="flex-1 relative z-10 overflow-hidden flex flex-col">
+        <div className="flex-1 overflow-y-auto">
+          <AnimatedBackground className="min-h-full py-4 sm:py-6 px-2 sm:px-4 md:px-6">
+            <div className="relative z-20 max-w-7xl mx-auto w-full">
+              <Outlet />
+            </div>
+          </AnimatedBackground>
+        </div>
       </div>
     </div>
   );
