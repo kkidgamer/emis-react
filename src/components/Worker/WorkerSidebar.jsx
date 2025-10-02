@@ -27,7 +27,7 @@ const WorkerSidebar = ({ isOpen, setIsOpen }) => {
       )}
 
       <div
-        className={`fixed inset-y-0 left-0 z-50 bg-gradient-to-b from-blue-900 to-purple-900 text-white shadow-2xl transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:w-64 w-80 h-full ${
+        className={`fixed inset-y-0 left-0 z-50 flex flex-col bg-gradient-to-b from-blue-900 to-purple-900 text-white shadow-2xl transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:w-64 w-80 h-full ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
@@ -70,6 +70,7 @@ const WorkerSidebar = ({ isOpen, setIsOpen }) => {
           </ul>
         </nav>
 
+        {/* This div is now pushed to the bottom */}
         <div className="border-t border-white/10 p-2 flex-shrink-0">
           <button
             onClick={logout}
