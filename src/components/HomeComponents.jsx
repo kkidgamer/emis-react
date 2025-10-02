@@ -168,10 +168,221 @@ const LandingPage = () => {
         )}
       </nav>
 
-      {/* Rest of the page content (hero, sections, etc.) - apply similar responsive patterns here */}
-      {/* ... (truncated for brevity; add flex-col md:flex-row, text-sm md:text-lg, etc. to sections) */}
+      {/* Hero Section */}
+      <section className="relative z-10 pt-24 sm:pt-32 pb-16 sm:pb-24 px-4 sm:px-6">
+        <div className="max-w-7xl mx-auto text-center">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-blue-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent mb-6 sm:mb-8 leading-tight">
+            Connecting Communities
+            <br />
+            <span className="text-3xl sm:text-4xl md:text-5xl">with Reliable Services</span>
+          </h1>
+          <p className="text-xl sm:text-2xl text-gray-200 mb-8 sm:mb-12 max-w-3xl mx-auto leading-relaxed">
+            EMIS is your trusted platform for seamless service bookings. From house cleaning to personal assistance, find skilled professionals effortlessly.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Link
+              to="/acc"
+              className="group relative px-8 py-4 font-bold text-white rounded-full overflow-hidden transform transition-all duration-300 hover:scale-105 w-full sm:w-auto text-center no-underline"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <span className="relative z-10 text-lg">Get Started</span>
+            </Link>
+            <Link
+              to="/services"
+              className="group relative px-8 py-4 font-bold text-white rounded-full overflow-hidden transform transition-all duration-300 hover:scale-105 w-full sm:w-auto text-center border-2 border-white/20 no-underline"
+            >
+              <span className="relative z-10 text-lg">Explore Services</span>
+            </Link>
+          </div>
+        </div>
+        {/* Hero Illustration */}
+        <div className="absolute inset-0 -z-10">
+          <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-black/50 to-transparent"></div>
+          <div className="absolute top-1/2 right-0 w-96 h-96 sm:w-[500px] sm:h-[500px] bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
+        </div>
+      </section>
 
-      {/* Footer (refactored for mobile) */}
+      {/* About Section */}
+      <section id="about" className="relative z-10 py-16 sm:py-24 px-4 sm:px-6 bg-black/20">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-blue-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent mb-4">
+              About EMIS
+            </h2>
+            <p className="text-xl text-gray-200 max-w-2xl mx-auto leading-relaxed">
+              We bridge the gap between everyday needs and skilled professionals, making service discovery simple, secure, and efficient.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="text-center group">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-6 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center border border-blue-400/30 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                <i className="fas fa-users text-white text-xl sm:text-2xl"></i>
+              </div>
+              <h3 className="text-xl sm:text-2xl font-bold text-white mb-3">Skilled Network</h3>
+              <p className="text-gray-200">Access a verified community of experts in various fields.</p>
+            </div>
+            <div className="text-center group">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-6 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center border border-green-400/30 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                <i className="fas fa-shield-alt text-white text-xl sm:text-2xl"></i>
+              </div>
+              <h3 className="text-xl sm:text-2xl font-bold text-white mb-3">Secure & Trusted</h3>
+              <p className="text-gray-200">End-to-end encryption and verified profiles for peace of mind.</p>
+            </div>
+            <div className="text-center group">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-6 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center border border-purple-400/30 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                <i className="fas fa-rocket text-white text-xl sm:text-2xl"></i>
+              </div>
+              <h3 className="text-xl sm:text-2xl font-bold text-white mb-3">Fast & Easy</h3>
+              <p className="text-gray-200">Book services in minutes with our intuitive platform.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Services Section */}
+      <section id="services" className="relative z-10 py-16 sm:py-24 px-4 sm:px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-blue-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent mb-4">
+              Our Services
+            </h2>
+            <p className="text-xl text-gray-200 max-w-2xl mx-auto leading-relaxed">
+              Discover top-tier services tailored to your needs.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+            {[
+              { icon: 'fas fa-broom', title: 'House Cleaning', desc: 'Professional deep cleaning for a spotless home.' },
+              { icon: 'fas fa-seedling', title: 'Gardening', desc: 'Expert landscaping and maintenance services.' },
+              { icon: 'fas fa-child', title: 'Childcare', desc: 'Reliable, caring babysitters for your family.' },
+              { icon: 'fas fa-user-tie', title: 'Personal Assistance', desc: 'Dedicated help for daily tasks and errands.' }
+            ].map((service, index) => (
+              <div key={index} className="group relative bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/10 shadow-xl hover:shadow-purple-500/20 transition-all duration-300 hover:-translate-y-2">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <i className={`${service.icon} text-white text-lg sm:text-xl`}></i>
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">{service.title}</h3>
+                <p className="text-gray-200 leading-relaxed">{service.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works Section */}
+      <section id="how-it-works" className="relative z-10 py-16 sm:py-24 px-4 sm:px-6 bg-black/20">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-blue-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent mb-4">
+              How It Works
+            </h2>
+            <p className="text-xl text-gray-200 max-w-2xl mx-auto leading-relaxed">
+              Simple steps to get you started in no time.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { step: '1', title: 'Sign Up', desc: 'Create your account and choose your role.', icon: 'fas fa-user-plus' },
+              { step: '2', title: 'Browse Services', desc: 'Explore available professionals and book easily.', icon: 'fas fa-search' },
+              { step: '3', title: 'Get Matched', desc: 'Connect, schedule, and enjoy seamless service.', icon: 'fas fa-check-circle' }
+            ].map((item, index) => (
+              <div key={index} className="text-center group">
+                <div className="relative mx-auto w-20 h-20 sm:w-24 sm:h-24 mb-6 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-full flex items-center justify-center border-4 border-white/20 group-hover:border-blue-400/50 transition-all duration-300 shadow-2xl">
+                  <span className="text-2xl font-bold text-white absolute">{item.step}</span>
+                  <i className={`${item.icon} text-white text-xl sm:text-2xl relative z-10`}></i>
+                </div>
+                <h3 className="text-xl sm:text-2xl font-bold text-white mb-3">{item.title}</h3>
+                <p className="text-gray-200 leading-relaxed max-w-md mx-auto">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section id="testimonials" className="relative z-10 py-16 sm:py-24 px-4 sm:px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-blue-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent mb-4">
+              What Our Users Say
+            </h2>
+            <p className="text-xl text-gray-200 max-w-2xl mx-auto leading-relaxed">
+              Hear from those who've experienced the EMIS difference.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            {[
+              { quote: 'EMIS made finding a reliable cleaner effortless. Highly recommend!', name: 'Sarah M.', role: 'Client' },
+              { quote: 'As a worker, the platform connects me with great opportunities daily.', name: 'John D.', role: 'Professional' },
+              { quote: 'Secure, fast, and user-friendly. Perfect for busy admins like me.', name: 'Admin Team', role: 'Admin' }
+            ].map((testimonial, index) => (
+              <div key={index} className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/10 shadow-xl">
+                <p className="text-gray-200 italic mb-4 leading-relaxed">"{testimonial.quote}"</p>
+                <div className="flex items-center">
+                  <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full flex items-center justify-center mr-3">
+                    <i className="fas fa-user text-white text-sm"></i>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-white">{testimonial.name}</h4>
+                    <p className="text-gray-400 text-sm">{testimonial.role}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Contact Section */}
+      <section id="contact" className="relative z-10 py-16 sm:py-24 px-4 sm:px-6 bg-black/20">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-blue-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent mb-4">
+              Get In Touch
+            </h2>
+            <p className="text-xl text-gray-200 max-w-2xl mx-auto leading-relaxed">
+              Have questions? We'd love to hear from you.
+            </p>
+          </div>
+          <form onSubmit={handleContactSubmit} className="max-w-lg mx-auto space-y-4">
+            <input
+              type="text"
+              placeholder="Your Name"
+              value={contactName}
+              onChange={(e) => setContactName(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-400/50 transition-all duration-300 placeholder-gray-300 text-white"
+              required
+            />
+            <input
+              type="email"
+              placeholder="Your Email"
+              value={contactEmail}
+              onChange={(e) => setContactEmail(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-400/50 transition-all duration-300 placeholder-gray-300 text-white"
+              required
+            />
+            <textarea
+              rows={4}
+              placeholder="Your Message"
+              value={contactMessage}
+              onChange={(e) => setContactMessage(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-400/50 transition-all duration-300 placeholder-gray-300 text-white resize-none"
+              required
+            />
+            <button
+              type="submit"
+              className="w-full group relative py-3 font-bold text-white rounded-xl overflow-hidden transform transition-all duration-300 hover:scale-105"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <span className="relative z-10">Send Message</span>
+            </button>
+          </form>
+        </div>
+      </section>
+
+      {/* Footer */}
       <footer className="bg-black/50 backdrop-blur-md border-t border-white/10 py-8 sm:py-12 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 sm:gap-8">
