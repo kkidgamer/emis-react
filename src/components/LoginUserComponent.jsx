@@ -72,33 +72,33 @@ const LoginUserComponent = () => {
   return (
     <AnimatedBackground>
       <div className="relative z-20 flex items-center justify-center px-4 sm:px-6 min-h-screen">
-        <div className="relative bg-white/10 backdrop-blur-xl p-8 max-w-md w-full rounded-3xl border border-white/20 shadow-2xl">
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-center space-x-3 mb-4">
+        <div className="relative bg-white/10 backdrop-blur-xl p-6 sm:p-8 max-w-md w-full rounded-3xl border border-white/20 shadow-2xl">
+          <div className="text-center mb-6 sm:mb-8">
+            <div className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-3 mb-4">
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg blur opacity-75"></div>
-                <div className="relative bg-gradient-to-r from-blue-500 to-purple-600 p-2 rounded-lg">
-                  <i className="fas fa-home text-2xl text-white"></i>
+                <div className="relative bg-gradient-to-r from-blue-500 to-purple-600 p-1.5 sm:p-2 rounded-lg">
+                  <i className="fas fa-home text-xl sm:text-2xl text-white"></i>
                 </div>
               </div>
-              <span className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent">
+              <span className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent">
                 EMIS
               </span>
             </div>
-            <h2 className="text-3xl font-bold text-white mb-2">Client Login</h2>
-            <p className="text-gray-200">Access your client dashboard</p>
+            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Client Login</h2>
+            <p className="text-sm sm:text-base text-gray-200">Access your client dashboard</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
             <div className="relative">
-              <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10">
-                <i className="fas fa-envelope text-gray-300"></i>
+              <div className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 z-10">
+                <i className="fas fa-envelope text-gray-300 text-sm sm:text-base"></i>
               </div>
               <input
                 type="email"
-                className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white/10 border border-white/20 
+                className="w-full pl-10 sm:pl-12 pr-4 py-3 sm:py-4 rounded-2xl bg-white/10 border border-white/20 
                           focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/50 
-                          transition-all duration-300 placeholder-gray-300 text-white"
+                          transition-all duration-300 placeholder-gray-300 text-white text-sm sm:text-base h-12"
                 placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -107,14 +107,14 @@ const LoginUserComponent = () => {
             </div>
 
             <div className="relative">
-              <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10">
-                <i className="fas fa-lock text-gray-300"></i>
+              <div className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 z-10">
+                <i className="fas fa-lock text-gray-300 text-sm sm:text-base"></i>
               </div>
               <input
                 type="password"
-                className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white/10 border border-white/20 
+                className="w-full pl-10 sm:pl-12 pr-4 py-3 sm:py-4 rounded-2xl bg-white/10 border border-white/20 
                           focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-400/50 
-                          transition-all duration-300 placeholder-gray-300 text-white"
+                          transition-all duration-300 placeholder-gray-300 text-white text-sm sm:text-base h-12"
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -124,16 +124,16 @@ const LoginUserComponent = () => {
 
             <button 
               type="submit" 
-              className="w-full group relative py-4 font-bold text-white rounded-2xl overflow-hidden 
-                        transform transition-all duration-300 hover:scale-105"
+              className="w-full group relative py-3 sm:py-4 font-bold text-white rounded-2xl overflow-hidden 
+                        transform transition-all duration-300 hover:scale-105 h-12"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-green-600 via-emerald-600 to-green-600"></div>
               <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 via-green-500 to-teal-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <span className="relative z-10 text-lg">Login</span>
+              <span className="relative z-10 text-base sm:text-lg">Login</span>
             </button>
 
             <div className="text-center">
-              <p className="text-gray-200">
+              <p className="text-sm sm:text-base text-gray-200">
                 Don't have an account?{' '}
                 <Link to="/register/user" className="text-green-400 hover:text-green-300 transition-colors duration-300 font-semibold">
                   Register
