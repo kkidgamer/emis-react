@@ -40,6 +40,8 @@ import Messages from './components/Worker/Messages';
 import MyMessages from './components/User/MyMessages';
 import AccountSelection from './components/AccountSelection';
 
+import { Analytics } from "@vercel/analytics/react"
+
 function App() {
   return (
     <Router>
@@ -123,6 +125,8 @@ function App() {
           pauseOnFocusLoss={false}
           limit={1} // 🔹 This ensures only ONE toast at a time
         />
+
+        <Analytics />
 
       </AuthProvider>
     </Router>
