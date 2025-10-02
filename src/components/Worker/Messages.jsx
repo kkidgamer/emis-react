@@ -102,24 +102,7 @@ const Messages = () => {
           const sortedMessages = (response.data.data || []).sort(
             (a, b) => new Date(a.time) - new Date(b.time)
           );
-          
           setMessages(sortedMessages);
-
-          const unreadMessages = sortedMessages.filter(
-            (msg) => !msg.isRead && msg.receiverId._id === user.id
-          );
-
-          for (const message of unreadMessages) {
-            try {
-              await axios.put(
-                `${API_URL}/message/read/${message._id}`,
-                {},
-                { headers: { Authorization: `Bearer ${token}` } }
-              );
-            } catch (err) {
-              console.error('Failed to mark message as read:', err);
-            }
-          }
         } catch (err) {
           toast.error('Failed to fetch messages.', {
             style: {
@@ -130,12 +113,10 @@ const Messages = () => {
           });
         }
       };
-
       fetchMessages();
     }
-  }, [selectedConversation, token, user.id]);
+  }, [selectedConversation, token]);
 
-  // Send message
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!newMessage.trim() || !selectedConversation) return;
@@ -147,21 +128,22 @@ const Messages = () => {
         {
           receiverId: selectedConversation.otherUser._id,
           bookingId: selectedConversation.bookingId,
-          content: newMessage.trim(),
+          content: newMessage,
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
       setMessages((prev) => [...prev, response.data]);
       setNewMessage('');
-
-      setConversations((prev) =>
-        prev.map((conv) =>
-          conv.id === selectedConversation.id ? { ...conv, lastMessage: response.data } : conv
-        )
-      );
+      toast.success('Message sent!', {
+        style: {
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          color: 'white',
+          borderRadius: '16px',
+        },
+      });
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to send message.', {
+      toast.error('Failed to send message.', {
         style: {
           background: 'linear-gradient(135deg, #ff6b6b 0%, #c0392b 100%)',
           color: 'white',
@@ -173,197 +155,133 @@ const Messages = () => {
     }
   };
 
-  const isMessageFromCurrentUser = (message) => {
-    return message.senderId._id === user._id || message.senderId === user._id;
-  };
-
-  const formatTime = (date) =>
-    new Date(date).toLocaleString('en-US', {
+  const formatTime = (timeString) => {
+    return new Date(timeString).toLocaleTimeString('en-US', {
       hour: '2-digit',
       minute: '2-digit',
     });
-
-  const formatLastMessageTime = (date) => {
-    const now = new Date();
-    const messageDate = new Date(date);
-    const diffInHours = (now - messageDate) / (1000 * 60 * 60);
-
-    if (diffInHours < 24) {
-      return messageDate.toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-    } else {
-      return messageDate.toLocaleDateString('en-US', {
-        month: 'short',
-        day: '2-digit',
-      });
-    }
   };
 
-  return (
-    <div>
-      {/* Header */}
-      <h2 className="text-4xl sm:text-5xl font-black mb-8 text-white">
-        <i className="fas fa-envelope text-blue-400 mr-2"></i>
-        Messages
-      </h2>
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh] p-4">
+        <div className="text-center">
+          <i className="fas fa-spinner fa-spin text-3xl text-white mb-4"></i>
+          <p className="text-white text-lg">Loading messages...</p>
+        </div>
+      </div>
+    );
+  }
 
-      {/* Main Layout */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-6" style={{ height: '70vh' }}>
-        {/* Conversations List */}
-        <div className="md:col-span-4">
-          <div className="group relative h-full p-4 rounded-3xl transition-all duration-500 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-purple-600/20 rounded-3xl group-hover:from-blue-600/30 group-hover:to-purple-600/30 transition-colors duration-300"></div>
-            <div className="absolute inset-0 backdrop-blur-sm border border-white/10 group-hover:border-white/20 rounded-3xl transition-all duration-300"></div>
-            <div className="relative z-10 h-full flex flex-col">
-              <div className="flex items-center mb-4">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-2">
-                  <i className="fas fa-users text-white text-base"></i>
+  return (
+    <div className="flex flex-col md:flex-row h-full p-2 sm:p-4 space-y-4 md:space-y-0 md:space-x-4">
+      {/* Conversations List - Full width on mobile, sidebar on desktop */}
+      <div className="md:w-1/3 bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 overflow-y-auto max-h-[60vh] md:max-h-full">
+        <div className="p-3 sm:p-4 border-b border-white/10">
+          <h3 className="text-lg sm:text-xl font-bold text-white flex items-center">
+            <i className="fas fa-inbox mr-2 text-blue-400"></i>
+            Conversations
+          </h3>
+        </div>
+        <div className="divide-y divide-white/10">
+          {conversations.map((conv) => (
+            <div
+              key={conv.id}
+              className={`p-3 sm:p-4 cursor-pointer hover:bg-white/10 transition-colors ${selectedConversation?.id === conv.id ? 'bg-white/20' : ''}`}
+              onClick={() => setSelectedConversation(conv)}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
+                    <i className="fas fa-user text-white text-sm sm:text-base"></i>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-white text-sm sm:text-base truncate">{conv.otherUser.name}</p>
+                    <p className="text-gray-400 text-xs truncate max-w-[150px] sm:max-w-none">{conv.lastMessage.content}</p>
+                  </div>
                 </div>
-                <h5 className="text-xl font-bold text-white">Conversations</h5>
-              </div>
-              <div className="flex-grow overflow-y-auto">
-                {loading ? (
-                  <div className="text-center py-4">
-                    <i className="fas fa-spinner fa-spin text-2xl text-white"></i>
-                  </div>
-                ) : conversations.length > 0 ? (
-                  conversations.map((conversation) => (
-                    <button
-                      key={conversation.id}
-                      className={`w-full text-left p-3 rounded-xl mb-2 transition-all duration-300 hover:bg-white/10 ${
-                        selectedConversation?.id === conversation.id ? 'bg-white/20' : ''
-                      }`}
-                      onClick={() => setSelectedConversation(conversation)}
-                    >
-                      <div className="flex justify-between items-start">
-                        <div className="me-auto text-start">
-                          <div className="font-bold text-white">{conversation.otherUser.name}</div>
-                          <div className="text-gray-400 small">
-                            {conversation.booking.serviceId?.title || 'Service'}
-                          </div>
-                          <div className="small text-gray-300 truncate" style={{ maxWidth: '200px' }}>
-                            {conversation.lastMessage.content}
-                          </div>
-                        </div>
-                        <div className="text-end">
-                          <small className="text-gray-400">
-                            {formatLastMessageTime(conversation.lastMessage.time)}
-                          </small>
-                          {conversation.unreadCount > 0 && (
-                            <div>
-                              <span className="badge inline-block px-2 py-1 rounded-full text-sm font-semibold bg-gradient-to-r from-red-500 to-rose-500 text-white mt-1">
-                                {conversation.unreadCount}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </button>
-                  ))
-                ) : (
-                  <div className="flex flex-column justify-content-center align-items-center h-full text-gray-400">
-                    <i className="fas fa-envelope-open-text text-5xl mb-4"></i>
-                    <p className="text-lg">No conversations found</p>
-                  </div>
+                {conv.unreadCount > 0 && (
+                  <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full min-w-[20px] h-[20px] flex items-center justify-center">
+                    {conv.unreadCount > 9 ? '9+' : conv.unreadCount}
+                  </span>
                 )}
               </div>
             </div>
-          </div>
+          ))}
         </div>
+      </div>
 
-        {/* Messages Area */}
-        <div className="md:col-span-8">
-          <div className="group relative h-full rounded-3xl transition-all duration-500 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-purple-600/20 rounded-3xl group-hover:from-blue-600/30 group-hover:to-purple-600/30 transition-colors duration-300"></div>
-            <div className="absolute inset-0 backdrop-blur-sm border border-white/10 group-hover:border-white/20 rounded-3xl transition-all duration-300"></div>
-            <div className="relative z-10 h-full flex flex-col">
-              {selectedConversation ? (
-                <>
-                  {/* Chat Header */}
-                  <div className="p-4 border-b border-white/10">
-                    <div className="flex items-center">
-                      <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mr-3">
-                        <i className="fas fa-user text-white text-lg"></i>
-                      </div>
-                      <div>
-                        <h6 className="font-bold text-white mb-0">{selectedConversation.otherUser.name}</h6>
-                        <small className="text-gray-400">
-                          {selectedConversation.booking.serviceId?.title || 'Service'}
-                        </small>
+      {/* Messages Area */}
+      <div className="flex-1 flex flex-col bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10">
+        {selectedConversation ? (
+          <>
+            {/* Header */}
+            <div className="p-3 sm:p-4 border-b border-white/10 flex items-center">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center flex-shrink-0 mr-3">
+                <i className="fas fa-user text-white text-sm sm:text-base"></i>
+              </div>
+              <div>
+                <h4 className="font-bold text-white text-sm sm:text-base">{selectedConversation.otherUser.name}</h4>
+                <p className="text-gray-400 text-xs">{selectedConversation.booking.title}</p>
+              </div>
+            </div>
+
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto p-2 sm:p-4 space-y-3 sm:space-y-4">
+              {messages.map((message) => {
+                const isFromCurrentUser = message.senderId._id === user.id;
+                return (
+                  <div key={message._id} className={`flex ${isFromCurrentUser ? 'justify-end' : 'justify-start'}`}>
+                    <div
+                      className={`p-2 sm:p-3 rounded-2xl max-w-[80%] ${isFromCurrentUser ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white' : 'bg-white/5 border border-white/10 text-gray-200'}`}
+                      style={{
+                        borderRadius: isFromCurrentUser ? '20px 20px 5px 20px' : '20px 20px 20px 5px',
+                      }}
+                    >
+                      <div className="mb-1 text-sm">{message.content}</div>
+                      <div className={`text-xs text-right ${isFromCurrentUser ? 'text-white/70' : 'text-gray-400'}`}>
+                        {formatTime(message.time)}
+                        {isFromCurrentUser && <i className="fas fa-check-double ml-1"></i>}
                       </div>
                     </div>
                   </div>
-
-                  {/* Messages */}
-                  <div className="flex-grow p-4 overflow-y-auto" style={{ background: 'rgba(255,255,255,0.02)' }}>
-                    {messages.map((message) => {
-                      const isFromCurrentUser = isMessageFromCurrentUser(message);
-                      return (
-                        <div
-                          key={message._id}
-                          className={`flex mb-4 ${isFromCurrentUser ? 'justify-end' : 'justify-start'}`}
-                        >
-                          <div
-                            className={`p-3 rounded-2xl max-w-[70%] ${
-                              isFromCurrentUser
-                                ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white'
-                                : 'bg-white/5 border border-white/10 text-gray-200'
-                            }`}
-                            style={{
-                              borderRadius: isFromCurrentUser ? '20px 20px 5px 20px' : '20px 20px 20px 5px',
-                            }}
-                          >
-                            <div className="mb-1">{message.content}</div>
-                            <div className={`small text-end text-xs ${isFromCurrentUser ? 'text-white/70' : 'text-gray-400'}`}>
-                              {formatTime(message.time)}
-                              {isFromCurrentUser && <i className="fas fa-check-double ml-1"></i>}
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                    <div ref={messagesEndRef} />
-                  </div>
-
-                  {/* Message Input */}
-                  <div className="p-4 border-t border-white/10">
-                    <form onSubmit={handleSendMessage}>
-                      <div className="flex">
-                        <input
-                          type="text"
-                          className="flex-grow bg-white/5 border border-white/10 rounded-l-lg p-3 text-white placeholder-gray-400 focus:border-blue-400 focus:outline-none transition-colors duration-300"
-                          placeholder="Type your message..."
-                          value={newMessage}
-                          onChange={(e) => setNewMessage(e.target.value)}
-                          disabled={sendingMessage}
-                        />
-                        <button
-                          type="submit"
-                          className="group relative px-6 py-3 font-semibold text-white rounded-r-lg overflow-hidden transition-all duration-300 hover:scale-105 disabled:opacity-50"
-                          disabled={sendingMessage || !newMessage.trim()}
-                        >
-                          <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600"></div>
-                          <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                          <span className="relative z-10">
-                            {sendingMessage ? <i className="fas fa-spinner fa-spin"></i> : <i className="fas fa-paper-plane"></i>}
-                          </span>
-                        </button>
-                      </div>
-                    </form>
-                  </div>
-                </>
-              ) : (
-                <div className="flex flex-column justify-content-center align-items-center h-full text-gray-400">
-                  <i className="fas fa-comment-dots text-5xl mb-4"></i>
-                  <h5 className="text-2xl font-bold mb-2">Select a conversation</h5>
-                  <p className="text-lg">Choose a conversation from the list to start messaging</p>
-                </div>
-              )}
+                );
+              })}
+              <div ref={messagesEndRef} />
             </div>
+
+            {/* Message Input */}
+            <div className="p-2 sm:p-4 border-t border-white/10">
+              <form onSubmit={handleSendMessage} className="flex">
+                <input
+                  type="text"
+                  className="flex-grow bg-white/5 border border-white/10 rounded-l-lg p-2 sm:p-3 text-white placeholder-gray-400 focus:border-blue-400 focus:outline-none transition-colors duration-300 text-sm min-h-[44px]"
+                  placeholder="Type your message..."
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  disabled={sendingMessage}
+                />
+                <button
+                  type="submit"
+                  className="group relative px-3 sm:px-6 py-2 sm:py-3 font-semibold text-white rounded-r-lg overflow-hidden transition-all duration-300 hover:scale-105 disabled:opacity-50 min-h-[44px] flex items-center justify-center"
+                  disabled={sendingMessage || !newMessage.trim()}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <span className="relative z-10">
+                    {sendingMessage ? <i className="fas fa-spinner fa-spin"></i> : <i className="fas fa-paper-plane"></i>}
+                  </span>
+                </button>
+              </form>
+            </div>
+          </>
+        ) : (
+          <div className="flex flex-col items-center justify-center h-full text-gray-400 p-4 text-center">
+            <i className="fas fa-comment-dots text-4xl sm:text-5xl mb-4"></i>
+            <h5 className="text-xl sm:text-2xl font-bold mb-2">Select a conversation</h5>
+            <p className="text-sm sm:text-base">Choose a conversation from the list to start messaging</p>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

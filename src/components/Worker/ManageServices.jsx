@@ -7,6 +7,7 @@ import { toast } from 'react-toastify';
 const ManageServices = () => {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -89,6 +90,7 @@ const ManageServices = () => {
       }
       setFormData({ title: '', description: '', category: '', price: '', duration: '', status: 'active' });
       setEditingService(null);
+      setShowForm(false);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to save service.', {
         style: {
@@ -105,13 +107,14 @@ const ManageServices = () => {
   const handleEdit = (service) => {
     setFormData({
       title: service.title,
-      description: service.description || '',
+      description: service.description,
       category: service.category,
-      status: service.status,
-      price: service.price.toString(),
-      duration: service.duration.toString(),
+      price: service.price,
+      duration: service.duration,
+      status: service.status
     });
     setEditingService(service);
+    setShowForm(true);
   };
 
   const handleDelete = async (id) => {
@@ -144,223 +147,235 @@ const ManageServices = () => {
   };
 
   const getStatusColor = (status) => {
-    return status === 'active' ? 'from-green-500 to-emerald-500' : 'from-gray-500 to-gray-600';
+    switch (status) {
+      case 'active':
+        return 'from-green-500 to-emerald-500';
+      case 'inactive':
+        return 'from-gray-500 to-gray-600';
+      default:
+        return 'from-gray-500 to-gray-600';
+    }
   };
 
+  if (loading && !services.length) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh] p-4">
+        <div className="text-center">
+          <i className="fas fa-spinner fa-spin text-3xl text-white mb-4"></i>
+          <p className="text-white text-lg">Loading services...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div>
-      {/* Loading Indicator */}
-      {loading && (
-        <div className="text-center mb-8">
-          <div className="inline-block bg-gradient-to-r from-blue-600/20 to-purple-600/20 p-4 rounded-2xl backdrop-blur-sm border border-white/10">
-            <i className="fas fa-spinner fa-spin text-2xl text-white mr-2"></i>
-            <span className="text-white text-lg">Loading...</span>
-          </div>
+    <div className="p-2 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
+      {/* Header & Add Button */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0 mb-6 sm:mb-8">
+        <div>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-2">
+            Manage Services
+          </h2>
+          <p className="text-sm sm:text-base text-gray-300">Create, edit, or delete your offered services</p>
+        </div>
+        <button
+          onClick={() => {
+            setFormData({ title: '', description: '', category: '', price: '', duration: '', status: 'active' });
+            setEditingService(null);
+            setShowForm(!showForm);
+          }}
+          className="group relative px-4 sm:px-6 py-2 sm:py-3 font-semibold text-white rounded-lg overflow-hidden transition-all duration-300 hover:scale-105 self-start sm:self-auto min-h-[44px]"
+        >
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-cyan-600"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-cyan-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          <span className="relative z-10 flex items-center">
+            <i className={`fas fa-${showForm ? 'times' : 'plus'} mr-1`}></i>
+            {showForm ? 'Cancel' : 'Add Service'}
+          </span>
+        </button>
+      </div>
+
+      {/* Form - Full screen on mobile */}
+      {showForm && (
+        <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 sm:p-6 border border-white/10 space-y-4 sm:space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+              <input
+                type="text"
+                name="title"
+                placeholder="Service Title"
+                value={formData.title}
+                onChange={handleInputChange}
+                className="w-full p-3 rounded-xl bg-white/10 border border-white/20 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/50 transition-all duration-300 placeholder-gray-300 text-white text-sm min-h-[44px]"
+                required
+              />
+              <input
+                type="text"
+                name="category"
+                placeholder="Category"
+                value={formData.category}
+                onChange={handleInputChange}
+                className="w-full p-3 rounded-xl bg-white/10 border border-white/20 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/50 transition-all duration-300 placeholder-gray-300 text-white text-sm min-h-[44px]"
+                required
+              />
+              <input
+                type="number"
+                name="price"
+                placeholder="Price ($)"
+                value={formData.price}
+                onChange={handleInputChange}
+                className="w-full p-3 rounded-xl bg-white/10 border border-white/20 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/50 transition-all duration-300 placeholder-gray-300 text-white text-sm min-h-[44px]"
+                required
+              />
+              <input
+                type="number"
+                name="duration"
+                placeholder="Duration (minutes)"
+                value={formData.duration}
+                onChange={handleInputChange}
+                className="w-full p-3 rounded-xl bg-white/10 border border-white/20 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/50 transition-all duration-300 placeholder-gray-300 text-white text-sm min-h-[44px]"
+                required
+              />
+            </div>
+            <textarea
+              name="description"
+              placeholder="Description"
+              value={formData.description}
+              onChange={handleInputChange}
+              rows={3}
+              className="w-full p-3 rounded-xl bg-white/10 border border-white/20 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/50 transition-all duration-300 placeholder-gray-300 text-white text-sm resize-none min-h-[80px]"
+              required
+            />
+            <select
+              name="status"
+              value={formData.status}
+              onChange={handleInputChange}
+              className="w-full p-3 rounded-xl bg-white/10 border border-white/20 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/50 transition-all duration-300 text-white text-sm min-h-[44px]"
+            >
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full group relative py-3 font-bold text-white rounded-xl overflow-hidden transition-all duration-300 hover:scale-105 disabled:opacity-50 min-h-[44px]"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <span className="relative z-10">{editingService ? 'Update Service' : 'Create Service'}</span>
+            </button>
+          </form>
         </div>
       )}
 
-      {/* Header */}
-      <h2 className="text-4xl sm:text-5xl font-black mb-8 text-white">
-        <i className="fas fa-list text-blue-400 mr-2"></i>
-        Manage Services
-      </h2>
-
-      {/* Form Card */}
-      <div className="group relative mb-8 p-6 rounded-3xl transition-all duration-500">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-purple-600/20 rounded-3xl group-hover:from-blue-600/30 group-hover:to-purple-600/30 transition-colors duration-300"></div>
-        <div className="absolute inset-0 backdrop-blur-sm border border-white/10 group-hover:border-white/20 rounded-3xl transition-all duration-300"></div>
-        <div className="relative z-10">
-          <h5 className="text-2xl font-bold text-white mb-6">{editingService ? 'Edit Service' : 'Add New Service'}</h5>
-          <form onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
-              <div>
-                <label className="block text-gray-300 mb-2 font-medium">Title</label>
-                <input
-                  type="text"
-                  className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white placeholder-gray-400 focus:border-blue-400 focus:outline-none transition-colors duration-300"
-                  name="title"
-                  value={formData.title}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-gray-300 mb-2 font-medium">Category</label>
-                <select
-                  className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:border-blue-400 focus:outline-none transition-colors duration-300"
-                  name="category"
-                  value={formData.category}
-                  onChange={handleInputChange}
-                  required
-                >
-                  <option value="">Select Category</option>
-                  {['plumbing', 'electrical', 'cooking', 'cleaning', 'carpentry', 'other'].map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-            <div className="mb-4">
-              <label className="block text-gray-300 mb-2 font-medium">Description</label>
-              <textarea
-                className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white placeholder-gray-400 focus:border-blue-400 focus:outline-none transition-colors duration-300"
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                rows="4"
-              ></textarea>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-              <div>
-                <label className="block text-gray-300 mb-2 font-medium">Price ($)</label>
-                <input
-                  type="number"
-                  className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white placeholder-gray-400 focus:border-blue-400 focus:outline-none transition-colors duration-300"
-                  name="price"
-                  value={formData.price}
-                  onChange={handleInputChange}
-                  min="0"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-gray-300 mb-2 font-medium">Duration (minutes)</label>
-                <input
-                  type="number"
-                  className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white placeholder-gray-400 focus:border-blue-400 focus:outline-none transition-colors duration-300"
-                  name="duration"
-                  value={formData.duration}
-                  onChange={handleInputChange}
-                  min="0"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-gray-300 mb-2 font-medium">Status</label>
-                <select
-                  className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:border-blue-400 focus:outline-none transition-colors duration-300"
-                  name="status"
-                  value={formData.status}
-                  onChange={handleInputChange}
-                  required
-                >
-                  <option value="">Select Status</option>
-                  {['active', 'inactive'].map((stat) => (
-                    <option key={stat} value={stat}>
-                      {stat.charAt(0).toUpperCase() + stat.slice(1)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-            <button
-              type="submit"
-              className="group relative px-6 py-3 font-semibold text-white rounded-full overflow-hidden transition-all duration-300 hover:scale-105 me-3 disabled:opacity-50"
-              disabled={loading}
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-green-600 to-emerald-600"></div>
-              <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-green-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <span className="relative z-10">
-                {loading ? (
-                  <i className="fas fa-spinner fa-spin mr-2"></i>
-                ) : (
-                  <i className="fas fa-save mr-2"></i>
-                )}
-                {editingService ? 'Update' : 'Create'} Service
-              </span>
-            </button>
-            {editingService && (
-              <button
-                type="button"
-                className="group relative px-6 py-3 font-semibold text-white rounded-full overflow-hidden transition-all duration-300 hover:scale-105"
-                onClick={() => {
-                  setFormData({ title: '', description: '', category: '', price: '', duration: '', status: 'active' });
-                  setEditingService(null);
-                }}
+      {/* Services List - Cards on Mobile, Table on Desktop */}
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm hidden md:table">
+          <thead>
+            <tr className="bg-white/5">
+              <th className="p-3 text-left text-gray-300">Title</th>
+              <th className="p-3 text-left text-gray-300">Category</th>
+              <th className="p-3 text-left text-gray-300">Price ($)</th>
+              <th className="p-3 text-left text-gray-300">Duration (min)</th>
+              <th className="p-3 text-left text-gray-300">Status</th>
+              <th className="p-3 text-left text-gray-300">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {services.map((service) => (
+              <tr
+                key={service._id}
+                className="border-t border-white/10 hover:bg-white/5 transition-colors duration-300"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-gray-600 to-gray-700"></div>
-                <div className="absolute inset-0 bg-gradient-to-r from-gray-700 to-gray-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <span className="relative z-10"><i className="fas fa-times mr-2"></i>Cancel</span>
-              </button>
-            )}
-          </form>
+                <td className="p-3 text-gray-200">{service.title}</td>
+                <td className="p-3 text-gray-200">{service.category}</td>
+                <td className="p-3 text-gray-200">{service.price}</td>
+                <td className="p-3 text-gray-200">{service.duration}</td>
+                <td className="p-3">
+                  <span
+                    className={`inline-block px-2 py-1 rounded-lg text-xs font-semibold bg-gradient-to-r ${getStatusColor(service.status)} text-white`}
+                  >
+                    {service.status.toUpperCase()}
+                  </span>
+                </td>
+                <td className="p-3 flex gap-2">
+                  <button
+                    className="group relative px-3 py-2 font-semibold text-white rounded-full overflow-hidden transition-all duration-300 hover:scale-105 min-h-[44px]"
+                    onClick={() => handleEdit(service)}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-cyan-600"></div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-cyan-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <span className="relative z-10 flex items-center justify-center h-full">
+                      <i className="fas fa-edit"></i>
+                    </span>
+                  </button>
+                  <button
+                    className="group relative px-3 py-2 font-semibold text-white rounded-full overflow-hidden transition-all duration-300 hover:scale-105 min-h-[44px]"
+                    onClick={() => handleDelete(service._id)}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-red-600 to-rose-600"></div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-rose-600 to-red-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <span className="relative z-10 flex items-center justify-center h-full">
+                      <i className="fas fa-trash"></i>
+                    </span>
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {/* Mobile Cards */}
+        <div className="md:hidden space-y-4">
+          {services.map((service) => (
+            <div
+              key={service._id}
+              className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-white/10 shadow-xl space-y-3"
+            >
+              <div className="flex justify-between items-start">
+                <h3 className="font-bold text-white text-base">{service.title}</h3>
+                <span
+                  className={`inline-block px-2 py-1 rounded-lg text-xs font-semibold bg-gradient-to-r ${getStatusColor(service.status)} text-white`}
+                >
+                  {service.status.toUpperCase()}
+                </span>
+              </div>
+              <p className="text-gray-300 text-sm">Category: {service.category}</p>
+              <p className="text-gray-300 text-sm">Price: ${service.price}</p>
+              <p className="text-gray-300 text-sm">Duration: {service.duration} min</p>
+              <div className="flex gap-2 pt-2">
+                <button
+                  className="group relative flex-1 py-2 font-semibold text-white rounded-lg overflow-hidden transition-all duration-300 hover:scale-105 min-h-[44px]"
+                  onClick={() => handleEdit(service)}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-cyan-600"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-cyan-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <span className="relative z-10 block w-full text-center">
+                    <i className="fas fa-edit mr-1"></i> Edit
+                  </span>
+                </button>
+                <button
+                  className="group relative px-3 py-2 font-semibold text-white rounded-lg overflow-hidden transition-all duration-300 hover:scale-105 min-h-[44px]"
+                  onClick={() => handleDelete(service._id)}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-red-600 to-rose-600"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-rose-600 to-red-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <span className="relative z-10 flex items-center justify-center h-full">
+                    <i className="fas fa-trash"></i>
+                  </span>
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Services List */}
-      <div className="group relative p-6 rounded-3xl transition-all duration-500">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-purple-600/20 rounded-3xl group-hover:from-blue-600/30 group-hover:to-purple-600/30 transition-colors duration-300"></div>
-        <div className="absolute inset-0 backdrop-blur-sm border border-white/10 group-hover:border-white/20 rounded-3xl transition-all duration-300"></div>
-        <div className="relative z-10">
-          <div className="flex items-center mb-6">
-            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-3">
-              <i className="fas fa-list text-white text-lg"></i>
-            </div>
-            <h5 className="text-2xl font-bold text-white">Services</h5>
-          </div>
-          {services.length ? (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead>
-                  <tr className="text-gray-300">
-                    <th className="p-3">Title</th>
-                    <th className="p-3">Category</th>
-                    <th className="p-3">Price ($)</th>
-                    <th className="p-3">Duration (min)</th>
-                    <th className="p-3">Status</th>
-                    <th className="p-3">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {services.map((service) => (
-                    <tr
-                      key={service._id}
-                      className="border-t border-white/10 hover:bg-white/5 transition-colors duration-300"
-                    >
-                      <td className="p-3 text-gray-200">{service.title}</td>
-                      <td className="p-3 text-gray-200">{service.category}</td>
-                      <td className="p-3 text-gray-200">{service.price}</td>
-                      <td className="p-3 text-gray-200">{service.duration}</td>
-                      <td className="p-3">
-                        <span
-                          className={`inline-block px-2 py-1 rounded-lg text-sm font-semibold bg-gradient-to-r ${getStatusColor(service.status)} text-white`}
-                        >
-                          {service.status.toUpperCase()}
-                        </span>
-                      </td>
-                      <td className="p-3">
-                        <button
-                          className="group relative px-3 py-1 font-semibold text-white rounded-full overflow-hidden me-2 transition-all duration-300 hover:scale-105"
-                          onClick={() => handleEdit(service)}
-                        >
-                          <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-cyan-600"></div>
-                          <div className="absolute inset-0 bg-gradient-to-r from-cyan-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                          <span className="relative z-10"><i className="fas fa-edit"></i></span>
-                        </button>
-                        <button
-                          className="group relative px-3 py-1 font-semibold text-white rounded-full overflow-hidden transition-all duration-300 hover:scale-105"
-                          onClick={() => handleDelete(service._id)}
-                        >
-                          <div className="absolute inset-0 bg-gradient-to-r from-red-600 to-rose-600"></div>
-                          <div className="absolute inset-0 bg-gradient-to-r from-rose-600 to-red-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                          <span className="relative z-10"><i className="fas fa-trash"></i></span>
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <i className="fas fa-list text-5xl text-gray-400 mb-4"></i>
-              <p className="text-gray-400 text-lg">No services found.</p>
-            </div>
-          )}
+      {services.length === 0 && !loading && (
+        <div className="text-center py-8 sm:py-12">
+          <i className="fas fa-list text-4xl sm:text-5xl text-gray-400 mb-4"></i>
+          <p className="text-gray-400 text-base sm:text-lg">No services found. Add one to get started!</p>
         </div>
-      </div>
+      )}
     </div>
   );
 };

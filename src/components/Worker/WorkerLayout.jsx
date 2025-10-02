@@ -13,15 +13,14 @@ if (!document.querySelector('link[href*="font-awesome"]')) {
 
 const WorkerLayout = () => {
   return (
-    <div className="d-flex" style={{ minHeight: '100vh' }}>
-      {/* Sidebar with higher z-index */}
-      <div className="position-relative" style={{ zIndex: 30, maxHeight: '100vh', overflowY: 'hidden' }}>
-        <WorkerSidebar />
-      </div>
-      {/* Content Area */}
-      <div className="flex-grow-1 position-relative" style={{ zIndex: 10, overflowY: 'auto' }}>
-        <AnimatedBackground className="py-12 px-6" style={{ pointerEvents: 'none' }}>
-          <div className="relative z-20 max-w-7xl mx-auto" style={{ pointerEvents: 'auto' }}>
+    <div className="flex min-h-screen bg-black">
+      {/* Sidebar - Fixed on mobile, relative on desktop */}
+      <WorkerSidebar />
+      
+      {/* Main Content */}
+      <div className="flex-1 relative z-10 md:ml-0 overflow-y-auto">
+        <AnimatedBackground className="min-h-screen py-4 sm:py-6 px-2 sm:px-4 md:px-6">
+          <div className="relative z-20 max-w-7xl mx-auto w-full">
             <Outlet />
           </div>
         </AnimatedBackground>

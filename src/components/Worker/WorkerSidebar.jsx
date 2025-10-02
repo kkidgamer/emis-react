@@ -5,7 +5,7 @@ import { AuthContext } from '../context/AuthContext';
 
 const WorkerSidebar = () => {
   const { logout } = useContext(AuthContext);
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(false); // Start collapsed on mobile
 
   const navItems = [
     { path: '/worker/dashboard', icon: 'fas fa-tachometer-alt', label: 'Dashboard' },
@@ -18,50 +18,63 @@ const WorkerSidebar = () => {
 
   return (
     <div
-      className="bg-gradient-to-b from-blue-900 to-purple-900 text-white vh-100 d-flex flex-column shadow-2xl"
-      style={{ width: expanded ? '250px' : '70px', transition: 'width 0.3s ease' }}
-      onMouseEnter={() => setExpanded(true)}
-      onMouseLeave={() => setExpanded(false)}
+      className={`fixed inset-y-0 left-0 z-50 bg-gradient-to-b from-blue-900 to-purple-900 text-white shadow-2xl transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 ${
+        expanded ? 'translate-x-0' : '-translate-x-full'
+      } md:w-64 w-64 h-full`}
     >
-      <div className="d-flex align-items-center justify-content-between p-3 border-bottom border-white/10">
-        {expanded && <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">Worker Panel</span>}
+      {/* Mobile Overlay */}
+      {expanded && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={() => setExpanded(false)}
+        ></div>
+      )}
+
+      <div className="flex items-center justify-between p-3 border-b border-white/10 h-16">
+        <div className="flex items-center space-x-2">
+          <i className="fas fa-home text-xl text-blue-300"></i>
+          {expanded && <span className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">Worker Panel</span>}
+        </div>
         <button
-          className="btn p-0 text-white opacity-75 hover:opacity-100 transition-opacity"
+          className="md:hidden p-1 text-white hover:text-gray-300 transition-colors"
           onClick={() => setExpanded(!expanded)}
         >
-          <i className={`fas ${expanded ? 'fa-chevron-left' : 'fa-chevron-right'} text-xl`}></i>
+          <i className={`fas ${expanded ? 'fa-times' : 'fa-bars'} text-xl`}></i>
         </button>
       </div>
 
-      <ul className="nav flex-column mb-auto">
-        {navItems.map((item) => (
-          <li key={item.path}>
-            <NavLink
-              to={item.path}
-              className={({ isActive }) =>
-                `group relative d-flex align-items-center px-4 py-3 transition-all duration-300 hover:bg-white/10 no-underline ${
-                  isActive ? 'bg-white/20 border-l-4 border-blue-400' : ''
-                }`
-              }
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 to-purple-500/0 group-hover:from-blue-500/20 group-hover:to-purple-500/20 transition-colors duration-300"></div>
-              <i className={`fas ${item.icon} text-xl text-blue-300 group-hover:text-white me-${expanded ? '3' : '0'} transition-colors duration-300`}></i>
-              {expanded && <span className="text-white font-medium">{item.label}</span>}
-            </NavLink>
-          </li>
-        ))}
-      </ul>
+      <nav className="flex-1 overflow-y-auto py-4">
+        <ul className="space-y-1 px-2">
+          {navItems.map((item) => (
+            <li key={item.path}>
+              <NavLink
+                to={item.path}
+                className={({ isActive }) =>
+                  `group relative flex items-center px-3 py-2 rounded-lg transition-all duration-300 hover:bg-white/10 no-underline ${
+                    isActive ? 'bg-white/20 border border-blue-400' : ''
+                  }`
+                }
+                onClick={() => expanded && setExpanded(false)} // Close on mobile tap
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 to-purple-500/0 group-hover:from-blue-500/20 group-hover:to-purple-500/20 rounded-lg transition-colors duration-300"></div>
+                <i className={`fas ${item.icon} text-lg text-blue-300 group-hover:text-white flex-shrink-0 mr-3`}></i>
+                <span className={`${expanded ? 'block' : 'hidden'} text-white font-medium text-sm`}>{item.label}</span>
+              </NavLink>
+            </li>
+          ))}
+        </ul>
+      </nav>
 
-      <hr className="border-white/10 mx-3" />
-
-      <button
-        onClick={logout}
-        className="group relative d-flex align-items-center px-4 py-3 transition-all duration-300 hover:bg-white/10 no-underline"
-      >
-        <div className="absolute inset-0 bg-gradient-to-r from-red-500/0 to-rose-500/0 group-hover:from-red-500/20 group-hover:to-rose-500/20 transition-colors duration-300"></div>
-        <i className="fas fa-sign-out-alt text-xl text-red-300 group-hover:text-white me-3 transition-colors duration-300"></i>
-        {expanded && <span className="text-white font-medium">Logout</span>}
-      </button>
+      <div className="border-t border-white/10 p-2">
+        <button
+          onClick={logout}
+          className="group relative flex items-center w-full px-3 py-2 rounded-lg transition-all duration-300 hover:bg-white/10 no-underline"
+        >
+          <div className="absolute inset-0 bg-gradient-to-r from-red-500/0 to-rose-500/0 group-hover:from-red-500/20 group-hover:to-rose-500/20 rounded-lg transition-colors duration-300"></div>
+          <i className="fas fa-sign-out-alt text-lg text-red-300 group-hover:text-white flex-shrink-0 mr-3"></i>
+          <span className={`${expanded ? 'block' : 'hidden'} text-white font-medium text-sm`}>Logout</span>
+        </button>
+      </div>
     </div>
   );
 };
